@@ -1,0 +1,54 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<TargetFramework>net8.0</TargetFramework>
+	<Nullable>disable</Nullable>
+	<LangVersion>latest</LangVersion>
+	<AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<AvaloniaResource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<AvaloniaXaml Remove="Controls\**" />
+	<AvaloniaXaml Remove="Converters\**" />
+	<AvaloniaXaml Remove="Data\**" />
+	<AvaloniaXaml Remove="Interfaces\**" />
+	<AvaloniaXaml Remove="Parse\**" />
+	<Compile Remove="Controls\**" />
+	<Compile Remove="Converters\**" />
+	<Compile Remove="Data\**" />
+	<Compile Remove="Interfaces\**" />
+	<Compile Remove="Parse\**" />
+	<EmbeddedResource Remove="Controls\**" />
+	<EmbeddedResource Remove="Converters\**" />
+	<EmbeddedResource Remove="Data\**" />
+	<EmbeddedResource Remove="Interfaces\**" />
+	<EmbeddedResource Remove="Parse\**" />
+	<None Remove="Controls\**" />
+	<None Remove="Converters\**" />
+	<None Remove="Data\**" />
+	<None Remove="Interfaces\**" />
+	<None Remove="Parse\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Remove="ViewModels\IntegerViewModel.cs" />
+    <Compile Remove="ViewModels\UnsignedIntegerViewModel.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Avalonia" Version="11.1.3" />
+	<PackageReference Include="Avalonia.Themes.Fluent" Version="11.1.3" />
+	<PackageReference Include="Avalonia.Fonts.Inter" Version="11.1.3" />
+	<PackageReference Include="CommunityToolkit.Mvvm" Version="8.3.2" />
+
+	<!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
+	<PackageReference Condition="'$(Configuration)' == 'Debug'" Include="Avalonia.Diagnostics" Version="11.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\BlockEditGen.csproj" />
+  </ItemGroup>
+</Project>

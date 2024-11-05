@@ -1,0 +1,38 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:BlockEditGen.ViewModels"
+			 xmlns:conv="using:BlockEditGen.Converters"
+			 mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="40"
+			 x:Class="BlockEditGen.Controls.EnumUserControl"
+			 x:DataType="vm:EnumViewModel">
+	<Design.DataContext>
+		<vm:EnumViewModel/>
+	</Design.DataContext>
+	<UserControl.Resources>
+		<conv:DataControlStateToBackgroundColorConverter x:Key="stateConverter" />
+	</UserControl.Resources>
+	<StackPanel Margin="0 0" Orientation="Horizontal" Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
+		<TextBlock
+			Name="nameText"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Center"
+			TextAlignment="Right"
+			Text="{Binding Name, Mode=OneWay, StringFormat=\{0\}:}"
+		/>
+		<ComboBox
+			Name="comboBox"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Center"
+			IsEnabled="{Binding !IsReadOnly, Mode=OneWay}"
+			ItemsSource="{Binding Items, Mode=OneWay}"
+			SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
+		/>
+	</StackPanel>
+</UserControl>

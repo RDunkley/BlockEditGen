@@ -1,0 +1,57 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			xmlns:vm="using:BlockEditGen.ViewModels"
+			xmlns:conv="using:BlockEditGen.Converters"
+			mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="40"
+			x:Class="BlockEditGen.Controls.BoolUserControl"
+			x:DataType="vm:BoolViewModel">
+	<Design.DataContext>
+		<vm:BoolViewModel/>
+	</Design.DataContext>
+	<UserControl.Resources>
+		<conv:BooleanToStringConverter x:Key="booleanToStringConverter" />
+		<conv:DataControlStateToBackgroundColorConverter x:Key="backColor" />
+	</UserControl.Resources>
+	<StackPanel Margin="0 0 0 0" Orientation="Horizontal" Background="{Binding CurrentState, Converter={StaticResource backColor}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
+		<TextBlock
+			Name="nameText"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Center"
+			TextAlignment="Right"
+			Text="{Binding Name, Mode=OneWay, StringFormat=\{0\}:}"
+		/>
+		<ToggleSwitch
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			IsChecked="{Binding IsChecked, Mode=TwoWay}"
+			OnContent="{Binding HighText, Mode=OneWay}"
+			OffContent="{Binding LowText, Mode=OneWay}"
+			IsVisible="{Binding !IsReadOnly}"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Center"
+			/>
+		<TextBlock
+			Name="followText"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Stretch"
+			TextAlignment="Left"
+			IsVisible="{Binding IsReadOnly}"
+		>
+			<TextBlock.Text>
+				<MultiBinding Converter="{StaticResource booleanToStringConverter}">
+					<Binding Path="HighText"/>
+					<Binding Path="LowText"/>
+					<Binding Path="IsChecked"/>
+				</MultiBinding>
+			</TextBlock.Text>
+		</TextBlock>
+	</StackPanel>
+</UserControl>

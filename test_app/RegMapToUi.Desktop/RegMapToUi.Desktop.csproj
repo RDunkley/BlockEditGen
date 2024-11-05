@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+	<OutputType>WinExe</OutputType>
+	<!--If you are willing to use Windows/MacOS native APIs you will need to create 3 projects.
+	One for Windows with net8.0-windows TFM, one for MacOS with net8.0-macos and one with net8.0 TFM for Linux.-->
+	<TargetFramework>net8.0</TargetFramework>
+	<Nullable>disable</Nullable>
+	<BuiltInComInteropSupport>true</BuiltInComInteropSupport>
+	<ApplicationManifest>app.manifest</ApplicationManifest>
+	<BaseOutputPath>..\..\build\test_app</BaseOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+	<PackageReference Include="Avalonia.Desktop" Version="11.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+	<ProjectReference Include="..\..\src\BlockEditGen.csproj" />
+	<ProjectReference Include="..\RegMapToUi\RegMapToUi.csproj" />
+  </ItemGroup>
+</Project>
