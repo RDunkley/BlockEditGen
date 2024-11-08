@@ -34,10 +34,15 @@ namespace BlockEditGen
 	{
 		public static void PopulatePanel(ICachedRegisterBlock block, string xmlPath, Panel panel)
 		{
-			DataViewModelBase.FontFamily = new FontFamily("Arial");
-
 			var pBlock = new Block(xmlPath);
 			pBlock.Initialize();
+
+			PopulatePanel(block, pBlock, panel);
+		}
+
+		public static void PopulatePanel(ICachedRegisterBlock block, Block pBlock, Panel panel)
+		{
+			DataViewModelBase.FontFamily = new FontFamily("Arial");
 
 			panel.Children.Clear();
 			var sv = new ScrollViewer
@@ -55,7 +60,7 @@ namespace BlockEditGen
 			panel.Children.Add(sv);
 
 			string maxName = string.Empty;
-			foreach(var value in pBlock.ChildValues)
+			foreach (var value in pBlock.ChildValues)
 			{
 				if (value.Name.Length > maxName.Length)
 					maxName = value.Name;
@@ -70,7 +75,7 @@ namespace BlockEditGen
 					sizeInBytes += 1;
 
 				UserControl newControl;
-				switch(value.Type)
+				switch (value.Type)
 				{
 					case Value.TypeEnum.Bool:
 						newControl = new BoolUserControl
