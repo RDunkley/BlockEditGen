@@ -22,21 +22,25 @@
 // SOFTWARE.
 // ******************************************************************************************************************************
 using BlockEditGen.Data;
-using System;
-using System.Threading.Tasks;
+using System.ComponentModel;
 
 namespace BlockEditGen.Interfaces
 {
-    /// <summary>
-    ///   Represents a cached register block that allows for read/writing to the cache and then pushing all the changes at once.
-    /// </summary>
-    public interface ICachedRegisterBlock
+	/// <summary>
+	///   Represents a cached register block that allows for read/writing to the cache and then pushing all the changes at once.
+	/// </summary>
+	public interface ICachedRegisterBlock : INotifyPropertyChanged
 	{
 		/// <summary>
 		///   Raised when the values are updated from the underlying register block or the cached values are pushed to the
 		///   underlying block (signaling a state change).
 		/// </summary>
 		event EventHandler CacheChanged;
+
+		/// <summary>
+		///   Gets whether some of the bytes have been modified.
+		/// </summary>
+		bool HasChanges { get; }
 
 		/// <summary>
 		///   Reads a section of the cache.

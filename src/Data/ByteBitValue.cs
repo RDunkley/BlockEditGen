@@ -76,13 +76,13 @@ namespace BlockEditGen.Data
 			if (bytes < 0) throw new ArgumentException($"The number of bytes ({bytes}) is less than 0.");
 			if (bits < 0) throw new ArgumentException($"The number of bits ({bits}) is less than 0.");
 
-			long sizeInBits = (long)Bytes * 8 + Bits;
+			long sizeInBits = (long)bytes * 8 + bits;
 			if (sizeInBits > int.MaxValue)
 				throw new ArgumentException($"The number of bytes ({bytes:N0}) and bits ({bits:N0}) is larger than the maximum allowed bits ({int.MaxValue:N0}");
 			TotalBits = (int)sizeInBits;
 
 			Bits = bits % 8;
-			Bytes = bytes + bits / 8;
+			Bytes = bytes + (bits / 8);
 		}
 
 		public ByteBitValue(int bits)

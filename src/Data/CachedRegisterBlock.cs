@@ -23,6 +23,8 @@
 // ******************************************************************************************************************************
 using BlockEditGen.Interfaces;
 using System;
+using System.ComponentModel;
+using System.Net;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -34,9 +36,15 @@ namespace BlockEditGen.Data
     ///   Register block that provides a caching and state mechnism for an underlying register block.
     /// </summary>
     /// <typeparam name="T">Must be byte, ushort, uint, or ulong.</typeparam>
-    public class CachedRegisterBlock<T> : ICachedRegisterBlock where T : struct, INumber<T>, IUnsignedNumber<T>
+    public class CachedRegisterBlock<T> : INotifyPropertyChanged, ICachedRegisterBlock where T : struct, INumber<T>, IUnsignedNumber<T>
 	{
 		#region Fields
+
+		/// <summary>
+		///   Incremented when a byte moves from a <see cref="DataControlState.Default"/> to a <see cref="DataControlState.Modified"/>.
+		///   Decremented when a byte moves back to the <see cref="DataControlState.Default"/> state.
+		/// </summary>
+		private uint _changeCounter = 0;
 
 		/// <summary>
 		///   The maximum size of block in bytes.
@@ -62,12 +70,26 @@ namespace BlockEditGen.Data
 		/// <summary>
 		///   Stores the underlying register block that values will be pushed and pulled from.
 		/// </summary>
-		private IRegisterBlock<T> _block;
+		protected IRegisterBlock<T> _block;
+
+		#endregion
+
+		#region Properties
 
 		/// <summary>
-		///   Size of the register size (sizeof(T)).
+		///   Gets the size of the register in bytes (sizeof(T)).
 		/// </summary>
-		private int _sizeOfRegister;
+		public int SizeOfRegister { get; private set; }
+
+		/// <summary>
+		///   Gets the size of the block in bytes.
+		/// </summary>
+		public int SizeInBytes { get { return _cache.Length; } }
+
+		/// <summary>
+		///   Gets whether some of the bytes have been modified.
+		/// </summary>
+		public bool HasChanges { get { return _changeCounter != 0; } }
 
 		#endregion
 
@@ -77,6 +99,11 @@ namespace BlockEditGen.Data
 		///   Raised then values in the cache have changed using a <see cref="UpdateValuesFromRegisterBlock"/> or <see cref="PushChangedValuesToRegisterBlock"/> call.
 		/// </summary>
 		public event EventHandler CacheChanged;
+
+		/// <summary>
+		///   Raised when <see cref="HasChanges"/> has been updated.
+		/// </summary>
+		public event PropertyChangedEventHandler PropertyChanged;
 
 		#endregion
 
@@ -94,13 +121,13 @@ namespace BlockEditGen.Data
 			if (block.SizeInBytes < 1 || block.SizeInBytes > _maxArraySize)
 				throw new ArgumentException($"The register block's size ({block.SizeInBytes}) is less than 1 or greater than 1,048,576.");
 			if (typeof(T) == typeof(byte))
-				_sizeOfRegister = sizeof(byte);
+				SizeOfRegister = sizeof(byte);
 			else if (typeof(T) == typeof(ushort))
-				_sizeOfRegister = sizeof(ushort);
+				SizeOfRegister = sizeof(ushort);
 			else if (typeof(T) == typeof(uint))
-				_sizeOfRegister = sizeof(uint);
+				SizeOfRegister = sizeof(uint);
 			else if (typeof(T) == typeof(ulong))
-				_sizeOfRegister = sizeof(ulong);
+				SizeOfRegister = sizeof(ulong);
 			else
 				throw new ArgumentException($"The type is not valid. The type must be byte, ushort, uint or ulong.");
 
@@ -165,6 +192,37 @@ namespace BlockEditGen.Data
 			}
 		}
 
+		private void UpdateState(int byteAddress)
+		{
+			// Check what the state should now be.
+			DataControlState state;
+			if (_cache.Span[byteAddress] != _prev.Span[byteAddress])
+				state = DataControlState.Modified;
+			else
+				state = DataControlState.Default;
+
+			// Check if we need to update the counter.
+			if (state == DataControlState.Modified && _state.Span[byteAddress] != DataControlState.Modified)
+				UpdateChangeCounter(true);
+			if (state == DataControlState.Default && _state.Span[byteAddress] == DataControlState.Modified)
+				UpdateChangeCounter(false);
+
+			// Set the new state.
+			_state.Span[byteAddress] = state;
+		}
+
+		private void UpdateChangeCounter(bool increment)
+		{
+			var current = _changeCounter;
+			if (increment)
+				_changeCounter++;
+			else
+				_changeCounter--;
+
+			if ((current == 0 && _changeCounter != 0) || (current != 0 && _changeCounter == 0))
+				OnPropertyChanged(nameof(HasChanges));
+		}
+
 		/// <summary>
 		///   Writes a section of the cache.
 		/// </summary>
@@ -189,10 +247,7 @@ namespace BlockEditGen.Data
 				for(int i = 0; i < length.Bytes; i++)
 				{
 					_cache.Span[address.Bytes + i] = src[i];
-					if (_cache.Span[address.Bytes + i] != _prev.Span[address.Bytes + i])
-						_state.Span[address.Bytes + i] = DataControlState.Modified;
-					else
-						_state.Span[address.Bytes + i] = DataControlState.Default;
+					UpdateState(address.Bytes + i);
 				}
 
 				// Copy over the rest of the bits if needed.
@@ -201,10 +256,7 @@ namespace BlockEditGen.Data
 					byte mask = GetBitMask(length.Bits);
 					_cache.Span[address.Bytes + length.Bytes] &= (byte)~mask; // Mask the bits to zero.
 					_cache.Span[address.Bytes + length.Bytes] |= (byte)(src[length.Bytes] & mask); // Add the final source bits.
-					if (_cache.Span[address.Bytes + length.Bytes] != _prev.Span[address.Bytes + length.Bytes])
-						_state.Span[address.Bytes + length.Bytes] = DataControlState.Modified;
-					else
-						_state.Span[address.Bytes + length.Bytes] = DataControlState.Default;
+					UpdateState(address.Bytes + length.Bytes);
 				}
 				return;
 			}
@@ -224,11 +276,7 @@ namespace BlockEditGen.Data
 				var mask = GetBitMask(numBitsToWrite) << dstBitIndex;
 				_cache.Span[address.Bytes + written.Bytes] &= (byte)~mask; // Clear the bits we are going to overwrite.
 				_cache.Span[address.Bytes + written.Bytes] |= (byte)(((src[written.Bytes] >> srcBitIndex) << dstBitIndex) & mask);
-
-				if (_cache.Span[address.Bytes + written.Bytes] != _prev.Span[address.Bytes + written.Bytes])
-					_state.Span[address.Bytes + written.Bytes] = DataControlState.Modified;
-				else
-					_state.Span[address.Bytes + written.Bytes] = DataControlState.Default;
+				UpdateState (address.Bytes + written.Bytes);
 
 				dstBitIndex += numBitsToWrite;
 				dstBitIndex %= 8;
@@ -252,52 +300,78 @@ namespace BlockEditGen.Data
 			if (address == null) throw new ArgumentNullException(nameof(address));
 			if (length == null) throw new ArgumentNullException(nameof(length));
 
-			int byteSize = ComputeBufferSize(new ByteBitValue(length.TotalBits + address.Bits));
-
-			// Check if any are modified.
-			bool modified = false;
+			// Check for updated first since we can only check whole bytes.
+			int byteSize = ComputeBufferSize(new ByteBitValue(length.Bytes, address.Bits + length.Bits));
 			bool updated = false;
 			for (int i = 0; i < byteSize; i++)
 			{
-				if (_state.Span[address.Bytes + i] == DataControlState.Modified)
-					modified = true;
-				else if (_state.Span[address.Bytes + i] == DataControlState.Updated)
+				if (_state.Span[address.Bytes + i] == DataControlState.Updated)
 					updated = true;
 			}
 
-			if (modified)
-				return DataControlState.Modified;
-			if(updated)
-				return DataControlState.Updated;
+			// Check for modified down to the bit level.
+			bool modified = false;
+			if (address.Bits == 0)
+			{
+				// Cache location is on a byte boundary.
+				for (int i = 0; i < length.Bytes; i++)
+				{
+					if (_state.Span[address.Bytes + i] == DataControlState.Modified)
+					{
+						modified = true;
+						break;
+					}
+				}
+
+				// Check the remaining bits.
+				if(length.Bits != 0 && !modified)
+				{
+					byte mask = GetBitMask(length.Bits);
+					byte cacheByte = (byte)(_cache.Span[address.Bytes + length.Bytes] & mask);
+					byte prevByte = (byte)(_prev.Span[address.Bytes + length.Bytes] & mask);
+					if (cacheByte != prevByte)
+						modified = true;
+				}
+
+				if (modified) return DataControlState.Modified;
+				if (updated) return DataControlState.Updated;
+				return DataControlState.Default;
+			}
+
+			// Check over in bits (this is much slower).
+			var checkedBits = new ByteBitValue(0);
+			var bitIndex = address.Bits;
+			while (checkedBits.TotalBits < length.TotalBits)
+			{
+				int numBitsToCheck = 8 - bitIndex; // Amount left in the current byte.
+				if (numBitsToCheck > (length.TotalBits - checkedBits.TotalBits)) // Reduce to number of bits left.
+					numBitsToCheck = (int)(length.TotalBits - checkedBits.TotalBits);
+
+				var mask = GetBitMask(numBitsToCheck) << bitIndex;
+				byte cacheByte = (byte)(_cache.Span[address.Bytes + checkedBits.Bytes] & mask);
+				byte prevByte = (byte)(_prev.Span[address.Bytes + checkedBits.Bytes] & mask);
+				if (cacheByte != prevByte)
+				{
+					modified = true;
+					break;
+				}
+
+				bitIndex += numBitsToCheck;
+				bitIndex %= 8;
+				checkedBits.AddBits(numBitsToCheck);
+			}
+
+			if (modified) return DataControlState.Modified;
+			if (updated) return DataControlState.Updated;
 			return DataControlState.Default;
 		}
-
-		/*public DataControlState GetSectionState(int address, int length)
-		{
-			bool modified = false;
-			bool updated = false;
-			for(int i = 0; i < length; i++)
-			{
-				var span = _state.Span;
-				if (span[address + i] == DataControlState.Modified)
-					modified = true;
-				else if (span[address + i] == DataControlState.Updated)
-					updated = true;
-			}
-
-			if (modified)
-				return DataControlState.Modified;
-			if (updated)
-				return DataControlState.Updated;
-			return DataControlState.Default;
-		}*/
 
 		private DataControlState GetRegState(int regAddress)
 		{
 			bool modified = false;
 			bool updated = false;
-			regAddress *= _sizeOfRegister;
-			for (int i = 0; i < _sizeOfRegister; i++)
+			regAddress *= SizeOfRegister;
+			for (int i = 0; i < SizeOfRegister; i++)
 			{
 				var span = _state.Span;
 				if (span[regAddress + i] == DataControlState.Modified)
@@ -313,12 +387,15 @@ namespace BlockEditGen.Data
 			return DataControlState.Default;
 		}
 
-		private void ClearRegState(int startReg, int count)
+		private void ClearRegState(int startByte, int byteCount)
 		{
-			startReg *= _sizeOfRegister;
-			count *= _sizeOfRegister;
-			for(int i = 0; i < count; i++)
-				_state.Span[startReg + i] = DataControlState.Default;
+			for(int i = 0; i < byteCount; i++)
+			{
+
+				if (_state.Span[startByte + i] == DataControlState.Modified)
+					UpdateChangeCounter(false);
+				_state.Span[startByte + i] = DataControlState.Default;
+			}
 		}
 
 		/// <summary>
@@ -343,14 +420,16 @@ namespace BlockEditGen.Data
 
 			// Update the previous values.
 			_cache.Span.CopyTo(_prev.Span);
+			_changeCounter = 0;
 
 			OnCacheChanged();
+			OnPropertyChanged(nameof(HasChanges));
 		}
 
 		public async Task PushChangedValuesToRegisterBlockAsync()
 		{
 			// Write the modified values to the register block.
-			int numRegs = _cache.Length / _sizeOfRegister;
+			int numRegs = _cache.Length / SizeOfRegister;
 			int regIndex = 0;
 			while (regIndex < numRegs)
 			{
@@ -361,8 +440,13 @@ namespace BlockEditGen.Data
 					{
 						regIndex++;
 					}
-					await _block.WriteAsync(startReg * _sizeOfRegister, new Memory<T>(MemoryMarshal.Cast<byte, T>(_cache.Span.Slice(startReg * _sizeOfRegister, (regIndex - startReg) * _sizeOfRegister)).ToArray()));
-					ClearRegState(startReg, regIndex - startReg);
+
+					var startByte = startReg * SizeOfRegister;
+					var byteCount = (regIndex - startReg) * SizeOfRegister;
+
+					await _block.WriteAsync(startByte, new Memory<T>(MemoryMarshal.Cast<byte, T>(_cache.Span.Slice(startByte, byteCount)).ToArray()));
+					ClearRegState(startByte, byteCount);
+					_cache.Slice(startByte, byteCount).CopyTo(_prev.Slice(startByte, byteCount)); // Copy the cache to prev.
 					regIndex++;
 				}
 				else
@@ -392,6 +476,11 @@ namespace BlockEditGen.Data
 		private void OnCacheChanged()
 		{
 			CacheChanged?.Invoke(this, EventArgs.Empty);
+		}
+
+		protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+		{
+			PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
 		}
 	}
 }
