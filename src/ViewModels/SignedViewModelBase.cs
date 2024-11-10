@@ -83,11 +83,26 @@ namespace BlockEditGen.ViewModels
 			var buf = new byte[LengthInBytes];
 			_block.ReadSection(_value.Address, _value.Length, buf);
 			T val = BytesToValue(buf);
-			return $"{val:N0}";
+
+			if(_value.Conversion == null)
+				return $"{val:N0}";
+
+			// Value has a conversion so output as a decimal (instead of the various unsigned formats).
+			return ConvertRegToValue(_value.Conversion, Convert.ToDouble(val));
 		}
 
 		protected override bool TrySetString(string value)
 		{
+			if (_value.Conversion != null)
+			{
+				// Value has a conversion type so assume it is brought in as a decimal value (instead of the various signed formats).
+				if (!TryConvertValueToReg(_value.Conversion, value, out double regVal))
+					return false;
+
+				// Convert to a signed value.
+				value = Convert.ToInt64(regVal).ToString();
+			}
+
 			value = value.Replace("_", string.Empty).ToLower();
 			if (!T.TryParse(value, NumberStyles.Integer | NumberStyles.AllowThousands, CultureInfo.CurrentCulture, out T result)) return false;
 			if (result > MaxValue) return false;

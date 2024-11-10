@@ -34,6 +34,16 @@ namespace BlockEditGen.Parse
 
 		public ByteBitValue Length { get; private set; }
 
+		public Conv Conversion
+		{
+			get
+			{
+				if (string.IsNullOrEmpty(Conv))
+					return null;
+				return ParentBlock.ConvLookup[Conv];
+			}
+		}
+
 		public AccessType Accessibility
 		{
 			get

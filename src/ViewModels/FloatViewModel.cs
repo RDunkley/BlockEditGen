@@ -46,7 +46,12 @@ namespace BlockEditGen.ViewModels
 			var ret = new byte[_size];
 			_block.ReadSection(_value.Address, _value.Length, ret);
 			var val = BitConverter.ToSingle(ret);
-			return val.ToString($"F{_numPrecision}");
+
+			if (_value.Conversion == null)
+				return val.ToString($"F{_numPrecision}");
+
+			// Value has a conversion so convert it.
+			return ConvertRegToValue(_value.Conversion, val);
 		}
 
 		protected override void SetValue(float value)

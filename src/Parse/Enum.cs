@@ -51,16 +51,16 @@ namespace BlockEditGen.Parse
 			foreach (var item in ChildItems)
 			{
 				if (ItemLookupByName.ContainsKey(item.Name))
-					throw new InvalidOperationException($"The item name {item.Name} in enum {Designator} is being used in one or more items. Names must be unique across all items in an enum.");
+					throw new InvalidOperationException($"The item name {item.Name} in enum {Id} is being used in one or more items. Names must be unique across all items in an enum.");
 				ItemLookupByName.Add(item.Name, item);
 
 				if(ItemLookupByValue.ContainsKey(item.Value))
-					throw new Exception($"The item value in {item.Name} is being used in one or more items in enum {Designator}. Values must be unique across all items in an enum.");
+					throw new Exception($"The item value in {item.Name} is being used in one or more items in enum {Id}. Values must be unique across all items in an enum.");
 				ItemLookupByValue.Add(item.Value, item);
 
 				// Check if item is larger than the available bit width.
 				if(item.Value > BitMask)
-					throw new Exception($"The item value ({item.Value}) with name {item.Name} in enum {Designator} is greater than the available bits in the enum ({Width}).");
+					throw new Exception($"The item value ({item.Value}) with name {item.Name} in enum {Id} is greater than the available bits in the enum ({Width}).");
 			}
 		}
 

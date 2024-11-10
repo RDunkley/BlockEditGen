@@ -8,21 +8,21 @@
 //                 ValueIntegerFormat                (public)
 //
 //   Properties:
-//                 Description                       (public)
 //                 Name                              (public)
 //                 Ordinal                           (public)
+//                 Tooltip                           (public)
 //                 Value                             (public)
 //                 ValueFormat                       (public)
 //
 //   Methods:
 //                 Item(2)                           (public)
 //                 CreateElement                     (public)
-//                 GetDescriptionString              (public)
 //                 GetNameString                     (public)
+//                 GetTooltipString                  (public)
 //                 GetValueString                    (public)
 //                 ParseXmlNode                      (public)
-//                 SetDescriptionFromString          (public)
 //                 SetNameFromString                 (public)
+//                 SetTooltipFromString              (public)
 //                 SetValueFromString                (public)
 //********************************************************************************************************************************
 // BlockEditGen.Parse.Item.ValueIntegerFormat (enum) (public)
@@ -85,11 +85,6 @@ namespace BlockEditGen.Parse
 		#region Properties
 
 		//************************************************************************************************************************
-		/// <summary>Gets a description of the item. Can be null. Can be empty.</summary>
-		//************************************************************************************************************************
-		public string Description { get; set; }
-
-		//************************************************************************************************************************
 		/// <summary>Gets the name of the enumeration that is displayed.</summary>
 		//************************************************************************************************************************
 		public string Name { get; set; }
@@ -102,6 +97,11 @@ namespace BlockEditGen.Parse
 		/// </remarks>
 		//************************************************************************************************************************
 		public int Ordinal { get; set; }
+
+		//************************************************************************************************************************
+		/// <summary>Gets or sets a description of the item portrayed in a tooltip in the UI. Can be null. Can be empty.</summary>
+		//************************************************************************************************************************
+		public string Tooltip { get; set; }
 
 		//************************************************************************************************************************
 		/// <summary>Gets the numeric value of the item represented in the register bits.</summary>
@@ -122,23 +122,21 @@ namespace BlockEditGen.Parse
 		///
 		/// <summary>Instantiates a new <see cref="Item"/> object using the provided information.</summary>
 		///
-		/// <param name="description">
-		///   'description' String attribute contained in the XML element. Can be null. Can be empty.
-		/// </param>
 		/// <param name="name">'name' String attribute contained in the XML element.</param>
+		/// <param name="tooltip">'tooltip' String attribute contained in the XML element. Can be null. Can be empty.</param>
 		/// <param name="valueValue">'value' 64-bit unsigned integer attribute contained in the XML element.</param>
 		///
 		/// <exception cref="ArgumentException"><paramref name="name"/> is an empty array.</exception>
 		/// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference.</exception>
 		//************************************************************************************************************************
-		public Item(string description, string name, ulong valueValue)
+		public Item(string name, string tooltip, ulong valueValue)
 		{
 			if(name == null)
 				throw new ArgumentNullException("name");
 			if(name.Length == 0)
 				throw new ArgumentException("name is empty");
-			Description = description;
 			Name = name;
+			Tooltip = tooltip;
 			Value = valueValue;
 			Ordinal = -1;
 		}
@@ -187,29 +185,19 @@ namespace BlockEditGen.Parse
 
 			string valueString;
 
-			// description
-			valueString = GetDescriptionString();
-			if(valueString != null)
-				returnElement.SetAttribute("description", valueString);
-
 			// name
 			valueString = GetNameString();
 			returnElement.SetAttribute("name", valueString);
+
+			// tooltip
+			valueString = GetTooltipString();
+			if(valueString != null)
+				returnElement.SetAttribute("tooltip", valueString);
 
 			// value
 			valueString = GetValueString();
 			returnElement.SetAttribute("value", valueString);
 			return returnElement;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Gets a string representation of Description.</summary>
-		///
-		/// <returns>String representing the value. Can be null. Can be empty.</returns>
-		//************************************************************************************************************************
-		public string GetDescriptionString()
-		{
-			return Description;
 		}
 
 		//************************************************************************************************************************
@@ -220,6 +208,16 @@ namespace BlockEditGen.Parse
 		public string GetNameString()
 		{
 			return Name;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Gets a string representation of Tooltip.</summary>
+		///
+		/// <returns>String representing the value. Can be null. Can be empty.</returns>
+		//************************************************************************************************************************
+		public string GetTooltipString()
+		{
+			return Tooltip;
 		}
 
 		//************************************************************************************************************************
@@ -261,19 +259,19 @@ namespace BlockEditGen.Parse
 
 			XmlAttribute attrib;
 
-			// description
-			attrib = node.Attributes["description"];
-			if(attrib == null)
-				Description = null;
-			else
-				SetDescriptionFromString(attrib.Value);
-
 			// name
 			attrib = node.Attributes["name"];
 			if(attrib == null)
 				throw new InvalidDataException("An XML string Attribute (name) is not optional, but was not found in the XML"
 					+ " element (item).");
 			SetNameFromString(attrib.Value);
+
+			// tooltip
+			attrib = node.Attributes["tooltip"];
+			if(attrib == null)
+				Tooltip = null;
+			else
+				SetTooltipFromString(attrib.Value);
 
 			// value
 			attrib = node.Attributes["value"];
@@ -282,23 +280,6 @@ namespace BlockEditGen.Parse
 					+ " element (item).");
 			SetValueFromString(attrib.Value);
 			Ordinal = ordinal;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Parses a string value and stores the data in Description.</summary>
-		///
-		/// <param name="value">String representation of the value.</param>
-		///
-		/// <exception cref="InvalidDataException">The string value could not be parsed.</exception>
-		//************************************************************************************************************************
-		public void SetDescriptionFromString(string value)
-		{
-			if(value == null)
-			{
-				Description = null;
-				return;
-			}
-			Description = value;
 		}
 
 		//************************************************************************************************************************
@@ -321,6 +302,23 @@ namespace BlockEditGen.Parse
 			if(value.Length == 0)
 				throw new InvalidDataException("The string value for 'name' is an empty string.");
 			Name = value;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Parses a string value and stores the data in Tooltip.</summary>
+		///
+		/// <param name="value">String representation of the value.</param>
+		///
+		/// <exception cref="InvalidDataException">The string value could not be parsed.</exception>
+		//************************************************************************************************************************
+		public void SetTooltipFromString(string value)
+		{
+			if(value == null)
+			{
+				Tooltip = null;
+				return;
+			}
+			Tooltip = value;
 		}
 
 		//************************************************************************************************************************

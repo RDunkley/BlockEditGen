@@ -21,13 +21,11 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ******************************************************************************************************************************
-using System;
-using System.Collections.Generic;
 using BlockEditGen.Data;
 
 namespace BlockEditGen.Parse
 {
-    public partial class Block
+	public partial class Block
 	{
 		public Dictionary<string, Enum> EnumLookup { get; private set; } = new Dictionary<string, Enum>();
 		public Dictionary<string, Conv> ConvLookup { get; private set; } = new Dictionary<string, Conv>();
@@ -52,9 +50,9 @@ namespace BlockEditGen.Parse
 			// Build enum lookup table.
 			foreach (var en in ChildEnums)
 			{
-				if (EnumLookup.ContainsKey(en.Designator))
-					throw new InvalidOperationException($"The enum designator {en.Designator} is being used in one or more enum. Designators must be unique across all enum entries in the block.");
-				EnumLookup.Add(en.Designator, en);
+				if (EnumLookup.ContainsKey(en.Id))
+					throw new InvalidOperationException($"The enum ID {en.Id} is being used in one or more enum. IDs must be unique across all enum entries in the block.");
+				EnumLookup.Add(en.Id, en);
 
 				en.Initialize();
 			}
@@ -62,14 +60,16 @@ namespace BlockEditGen.Parse
 			// Build conv lookup table.
 			foreach(var conv in ChildConvs)
 			{
-				if(ConvLookup.ContainsKey(conv.Designator))
-					throw new InvalidOperationException($"The conv designator {conv.Designator} is being used in one or more conversion elements. Designators must be unique across all conv entries in the block.");
-				ConvLookup.Add(conv.Designator, conv);
+				if(ConvLookup.ContainsKey(conv.Id))
+					throw new InvalidOperationException($"The conv ID {conv.Id} is being used in one or more conversion elements. IDs must be unique across all conv entries in the block.");
+				ConvLookup.Add(conv.Id, conv);
 			}
 
 			// Initialize the registers.
 			foreach (var val in ChildValues)
 				val.Initialize(this);
+			foreach (var group in ChildGroups)
+				group.Initialize(this);
 
 			// Check for value overlap and find max.
 			ByteBitValue maxEndValue = new ByteBitValue(0, 0);

@@ -23,6 +23,7 @@
 // ******************************************************************************************************************************
 using BlockEditGen.Interfaces;
 using BlockEditGen.Parse;
+using System.Globalization;
 
 namespace BlockEditGen.ViewModels
 {
@@ -67,6 +68,27 @@ namespace BlockEditGen.ViewModels
 		public StringBasedViewModelBase(Value value, ICachedRegisterBlock block)
 			: base(value, block)
 		{
+		}
+
+		protected bool TryConvertValueToReg(Conv conv, string inputVal, out double regVal)
+		{
+			if (!double.TryParse(inputVal, CultureInfo.CurrentCulture, out regVal))
+				return false;
+
+			if (conv.Offset.HasValue)
+				regVal -= conv.Offset.Value;
+			if (conv.Gain.HasValue)
+				regVal /= conv.Gain.Value;
+			return true;
+		}
+
+		protected string ConvertRegToValue(Conv conv, double regVal)
+		{
+			if(conv.Gain.HasValue)
+				regVal *= conv.Gain.Value;
+			if(conv.Offset.HasValue)
+				regVal += conv.Offset.Value;
+			return regVal.ToString();
 		}
 
 		protected abstract string GetString();

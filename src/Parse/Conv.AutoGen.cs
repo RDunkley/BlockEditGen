@@ -9,9 +9,9 @@
 //                 OffsetFloatFormat                (public)
 //
 //   Properties:
-//                 Designator                       (public)
 //                 Gain                             (public)
 //                 GainFormat                       (public)
+//                 Id                               (public)
 //                 Offset                           (public)
 //                 OffsetFormat                     (public)
 //                 Ordinal                          (public)
@@ -19,12 +19,12 @@
 //   Methods:
 //                 Conv(2)                          (public)
 //                 CreateElement                    (public)
-//                 GetDesignatorString              (public)
 //                 GetGainString                    (public)
+//                 GetIdString                      (public)
 //                 GetOffsetString                  (public)
 //                 ParseXmlNode                     (public)
-//                 SetDesignatorFromString          (public)
 //                 SetGainFromString                (public)
+//                 SetIdFromString                  (public)
 //                 SetOffsetFromString              (public)
 //********************************************************************************************************************************
 // BlockEditGen.Parse.Conv.GainFloatFormat (enum)   (public)
@@ -100,11 +100,6 @@ namespace BlockEditGen.Parse
 		#region Properties
 
 		//************************************************************************************************************************
-		/// <summary>Gets the designator unique across all conv items in the block.</summary>
-		//************************************************************************************************************************
-		public string Designator { get; set; }
-
-		//************************************************************************************************************************
 		/// <summary>
 		///   Gets or sets the gain to be applied to the register value. If not provided, then no gain will be applied. Can be
 		///   null.
@@ -116,6 +111,13 @@ namespace BlockEditGen.Parse
 		/// <summary>Determines what format the Gain floating type should be converted to in the XML string</summary>
 		//************************************************************************************************************************
 		public GainFloatFormat GainFormat { get; set; }
+
+		//************************************************************************************************************************
+		/// <summary>
+		///   Gets or sets the identification string of this conversion. Must be unique across all conversion elements.
+		/// </summary>
+		//************************************************************************************************************************
+		public string Id { get; set; }
 
 		//************************************************************************************************************************
 		/// <summary>
@@ -147,25 +149,25 @@ namespace BlockEditGen.Parse
 		///
 		/// <summary>Instantiates a new <see cref="Conv"/> object using the provided information.</summary>
 		///
-		/// <param name="designator">'designator' String attribute contained in the XML element.</param>
 		/// <param name="gain">
 		///   'gain' Double Precision (64-bit) floating point number attribute contained in the XML element. Can be null.
 		/// </param>
+		/// <param name="id">'id' String attribute contained in the XML element.</param>
 		/// <param name="offset">
 		///   'offset' Double Precision (64-bit) floating point number attribute contained in the XML element. Can be null.
 		/// </param>
 		///
-		/// <exception cref="ArgumentException"><paramref name="designator"/> is an empty array.</exception>
-		/// <exception cref="ArgumentNullException"><paramref name="designator"/> is a null reference.</exception>
+		/// <exception cref="ArgumentException"><paramref name="id"/> is an empty array.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="id"/> is a null reference.</exception>
 		//************************************************************************************************************************
-		public Conv(string designator, double? gain, double? offset)
+		public Conv(double? gain, string id, double? offset)
 		{
-			if(designator == null)
-				throw new ArgumentNullException("designator");
-			if(designator.Length == 0)
-				throw new ArgumentException("designator is empty");
-			Designator = designator;
+			if(id == null)
+				throw new ArgumentNullException("id");
+			if(id.Length == 0)
+				throw new ArgumentException("id is empty");
 			Gain = gain;
+			Id = id;
 			Offset = offset;
 			Ordinal = -1;
 		}
@@ -214,30 +216,20 @@ namespace BlockEditGen.Parse
 
 			string valueString;
 
-			// designator
-			valueString = GetDesignatorString();
-			returnElement.SetAttribute("designator", valueString);
-
 			// gain
 			valueString = GetGainString();
 			if(valueString != null)
 				returnElement.SetAttribute("gain", valueString);
+
+			// id
+			valueString = GetIdString();
+			returnElement.SetAttribute("id", valueString);
 
 			// offset
 			valueString = GetOffsetString();
 			if(valueString != null)
 				returnElement.SetAttribute("offset", valueString);
 			return returnElement;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Gets a string representation of Designator.</summary>
-		///
-		/// <returns>String representing the value.</returns>
-		//************************************************************************************************************************
-		public string GetDesignatorString()
-		{
-			return Designator;
 		}
 
 		//************************************************************************************************************************
@@ -254,6 +246,16 @@ namespace BlockEditGen.Parse
 				return Gain.Value.ToString("E");
 				else
 				return Gain.Value.ToString("N");
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Gets a string representation of Id.</summary>
+		///
+		/// <returns>String representing the value.</returns>
+		//************************************************************************************************************************
+		public string GetIdString()
+		{
+			return Id;
 		}
 
 		//************************************************************************************************************************
@@ -293,19 +295,19 @@ namespace BlockEditGen.Parse
 
 			XmlAttribute attrib;
 
-			// designator
-			attrib = node.Attributes["designator"];
-			if(attrib == null)
-				throw new InvalidDataException("An XML string Attribute (designator) is not optional, but was not found in the"
-					+ " XML element (conv).");
-			SetDesignatorFromString(attrib.Value);
-
 			// gain
 			attrib = node.Attributes["gain"];
 			if(attrib == null)
 				Gain = null;
 			else
 				SetGainFromString(attrib.Value);
+
+			// id
+			attrib = node.Attributes["id"];
+			if(attrib == null)
+				throw new InvalidDataException("An XML string Attribute (id) is not optional, but was not found in the XML"
+					+ " element (conv).");
+			SetIdFromString(attrib.Value);
 
 			// offset
 			attrib = node.Attributes["offset"];
@@ -314,28 +316,6 @@ namespace BlockEditGen.Parse
 			else
 				SetOffsetFromString(attrib.Value);
 			Ordinal = ordinal;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Parses a string value and stores the data in Designator.</summary>
-		///
-		/// <param name="value">String representation of the value.</param>
-		///
-		/// <exception cref="InvalidDataException">
-		///   <list type="bullet">
-		///     <listheader>One of the following:</listheader>
-		///     <item>The string value is a null reference or an empty string.</item>
-		///     <item>The string value could not be parsed.</item>
-		///   </list>
-		/// </exception>
-		//************************************************************************************************************************
-		public void SetDesignatorFromString(string value)
-		{
-			if(value == null)
-				throw new InvalidDataException("The string value for 'designator' is a null reference.");
-			if(value.Length == 0)
-				throw new InvalidDataException("The string value for 'designator' is an empty string.");
-			Designator = value;
 		}
 
 		//************************************************************************************************************************
@@ -391,6 +371,28 @@ namespace BlockEditGen.Parse
 			}
 
 			Gain = returnValue;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Parses a string value and stores the data in Id.</summary>
+		///
+		/// <param name="value">String representation of the value.</param>
+		///
+		/// <exception cref="InvalidDataException">
+		///   <list type="bullet">
+		///     <listheader>One of the following:</listheader>
+		///     <item>The string value is a null reference or an empty string.</item>
+		///     <item>The string value could not be parsed.</item>
+		///   </list>
+		/// </exception>
+		//************************************************************************************************************************
+		public void SetIdFromString(string value)
+		{
+			if(value == null)
+				throw new InvalidDataException("The string value for 'id' is a null reference.");
+			if(value.Length == 0)
+				throw new InvalidDataException("The string value for 'id' is an empty string.");
+			Id = value;
 		}
 
 		//************************************************************************************************************************

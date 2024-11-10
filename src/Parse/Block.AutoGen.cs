@@ -17,6 +17,7 @@
 //                 Access                                   (public)
 //                 ChildConvs                               (public)
 //                 ChildEnums                               (public)
+//                 ChildGroups                              (public)
 //                 ChildValues                              (public)
 //                 Description                              (public)
 //                 Id                                       (public)
@@ -190,6 +191,11 @@ namespace BlockEditGen.Parse
 		//************************************************************************************************************************
 		/// <summary>Gets or sets the child XML elements.</summary>
 		//************************************************************************************************************************
+		public Group[] ChildGroups { get; private set; }
+
+		//************************************************************************************************************************
+		/// <summary>Gets or sets the child XML elements.</summary>
+		//************************************************************************************************************************
 		public Value[] ChildValues { get; private set; }
 
 		//************************************************************************************************************************
@@ -272,16 +278,18 @@ namespace BlockEditGen.Parse
 		/// <param name="version">'version' Version attribute contained in the XML element.</param>
 		/// <param name="childConvs">Array of conv elements which are child elements of this node. Can be empty.</param>
 		/// <param name="childEnums">Array of enum elements which are child elements of this node. Can be empty.</param>
+		/// <param name="childGroups">Array of group elements which are child elements of this node. Can be empty.</param>
 		/// <param name="childValues">Array of value elements which are child elements of this node. Can be empty.</param>
 		///
 		/// <exception cref="ArgumentException"><paramref name="id"/>, or <paramref name="name"/> is an empty array.</exception>
 		/// <exception cref="ArgumentNullException">
 		///   <paramref name="id"/>, <paramref name="name"/>, <paramref name="version"/>, <paramref name="childConvs"/>,
-		///   <paramref name="childEnums"/>, or <paramref name="childValues"/> is a null reference.
+		///   <paramref name="childEnums"/>, <paramref name="childGroups"/>, or <paramref name="childValues"/> is a null
+		///   reference.
 		/// </exception>
 		//************************************************************************************************************************
 		public Block(AccessEnum? access, string description, string id, string name, int sizeInBytes, Version version,
-			Conv[] childConvs, Enum[] childEnums, Value[] childValues)
+			Conv[] childConvs, Enum[] childEnums, Group[] childGroups, Value[] childValues)
 		{
 			if(id == null)
 				throw new ArgumentNullException("id");
@@ -297,6 +305,8 @@ namespace BlockEditGen.Parse
 				throw new ArgumentNullException("childConvs");
 			if(childEnums == null)
 				throw new ArgumentNullException("childEnums");
+			if(childGroups == null)
+				throw new ArgumentNullException("childGroups");
 			if(childValues == null)
 				throw new ArgumentNullException("childValues");
 			Access = access;
@@ -307,6 +317,7 @@ namespace BlockEditGen.Parse
 			Version = version;
 			ChildConvs = childConvs;
 			ChildEnums = childEnums;
+			ChildGroups = childGroups;
 			ChildValues = childValues;
 			Ordinal = -1;
 
@@ -318,6 +329,11 @@ namespace BlockEditGen.Parse
 					maxIndex = item.Ordinal + 1; // Set to first index after this index.
 			}
 			foreach(Enum item in ChildEnums)
+			{
+				if(item.Ordinal >= maxIndex)
+					maxIndex = item.Ordinal + 1; // Set to first index after this index.
+			}
+			foreach(Group item in ChildGroups)
 			{
 				if(item.Ordinal >= maxIndex)
 					maxIndex = item.Ordinal + 1; // Set to first index after this index.
@@ -335,6 +351,11 @@ namespace BlockEditGen.Parse
 					item.Ordinal = maxIndex++;
 			}
 			foreach(Enum item in ChildEnums)
+			{
+				if(item.Ordinal == -1)
+					item.Ordinal = maxIndex++;
+			}
+			foreach(Group item in ChildGroups)
 			{
 				if(item.Ordinal == -1)
 					item.Ordinal = maxIndex++;
@@ -518,6 +539,14 @@ namespace BlockEditGen.Parse
 				lookup.Add(child.Ordinal, child);
 			}
 
+			foreach(Group child in ChildGroups)
+			{
+				if(lookup.ContainsKey(child.Ordinal))
+					throw new InvalidOperationException("An attempt was made to generate the XML element with two child elements"
+						+ " with the same ordinal.Ordinals must be unique across all child objects.");
+				lookup.Add(child.Ordinal, child);
+			}
+
 			foreach(Value child in ChildValues)
 			{
 				if(lookup.ContainsKey(child.Ordinal))
@@ -536,6 +565,8 @@ namespace BlockEditGen.Parse
 					returnElement.AppendChild(((Conv)lookup[key]).CreateElement(doc));
 				if(lookup[key] is Enum)
 					returnElement.AppendChild(((Enum)lookup[key]).CreateElement(doc));
+				if(lookup[key] is Group)
+					returnElement.AppendChild(((Group)lookup[key]).CreateElement(doc));
 				if(lookup[key] is Value)
 					returnElement.AppendChild(((Value)lookup[key]).CreateElement(doc));
 			}
@@ -1025,6 +1056,7 @@ namespace BlockEditGen.Parse
 			// Read the child objects.
 			List<Conv> childConvsList = new List<Conv>();
 			List<Enum> childEnumsList = new List<Enum>();
+			List<Group> childGroupsList = new List<Group>();
 			List<Value> childValuesList = new List<Value>();
 			int index = 0;
 			foreach(XmlNode child in node.ChildNodes)
@@ -1033,11 +1065,14 @@ namespace BlockEditGen.Parse
 					childConvsList.Add(new Conv(child, index++));
 				if(child.NodeType == XmlNodeType.Element && child.Name == "enum")
 					childEnumsList.Add(new Enum(child, index++));
+				if(child.NodeType == XmlNodeType.Element && child.Name == "group")
+					childGroupsList.Add(new Group(child, index++));
 				if(child.NodeType == XmlNodeType.Element && child.Name == "value")
 					childValuesList.Add(new Value(child, index++));
 			}
 			ChildConvs = childConvsList.ToArray();
 			ChildEnums = childEnumsList.ToArray();
+			ChildGroups = childGroupsList.ToArray();
 			ChildValues = childValuesList.ToArray();
 
 			Ordinal = ordinal;

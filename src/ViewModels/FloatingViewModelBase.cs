@@ -49,6 +49,16 @@ namespace BlockEditGen.ViewModels
 
 		protected override bool TrySetString(string value)
 		{
+			if (_value.Conversion != null)
+			{
+				// Value has a conversion type.
+				if (!TryConvertValueToReg(_value.Conversion, value, out double regVal))
+					return false;
+
+				// Convert to a unsigned value.
+				value = regVal.ToString();
+			}
+
 			if (!TryParse(value, out T result)) return false;
 
 			SetValue(result);

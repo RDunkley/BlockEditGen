@@ -12,11 +12,11 @@
 //                 Access                     (public)
 //                 Addr                       (public)
 //                 Conv                       (public)
-//                 Description                (public)
 //                 Name                       (public)
 //                 Ordinal                    (public)
 //                 Size                       (public)
 //                 Subtype                    (public)
+//                 Tooltip                    (public)
 //                 Type                       (public)
 //                 Units                      (public)
 //
@@ -26,20 +26,20 @@
 //                 GetAccessString            (public)
 //                 GetAddrString              (public)
 //                 GetConvString              (public)
-//                 GetDescriptionString       (public)
 //                 GetNameString              (public)
 //                 GetSizeString              (public)
 //                 GetSubtypeString           (public)
+//                 GetTooltipString           (public)
 //                 GetTypeString              (public)
 //                 GetUnitsString             (public)
 //                 ParseXmlNode               (public)
 //                 SetAccessFromString        (public)
 //                 SetAddrFromString          (public)
 //                 SetConvFromString          (public)
-//                 SetDescriptionFromString   (public)
 //                 SetNameFromString          (public)
 //                 SetSizeFromString          (public)
 //                 SetSubtypeFromString       (public)
+//                 SetTooltipFromString       (public)
 //                 SetTypeFromString          (public)
 //                 SetUnitsFromString         (public)
 //********************************************************************************************************************************
@@ -216,11 +216,6 @@ namespace BlockEditGen.Parse
 		public string Conv { get; set; }
 
 		//************************************************************************************************************************
-		/// <summary>Gets or sets a description of the value. Can be null.</summary>
-		//************************************************************************************************************************
-		public string Description { get; set; }
-
-		//************************************************************************************************************************
 		/// <summary>Gets or sets the name of the value. This is what will be displayed in the UI.</summary>
 		//************************************************************************************************************************
 		public string Name { get; set; }
@@ -248,6 +243,11 @@ namespace BlockEditGen.Parse
 		public string Subtype { get; set; }
 
 		//************************************************************************************************************************
+		/// <summary>Gets or sets a description of the item portrayed in a tooltip in the UI. Can be null. Can be empty.</summary>
+		//************************************************************************************************************************
+		public string Tooltip { get; set; }
+
+		//************************************************************************************************************************
 		/// <summary>Gets or sets the type of the value.</summary>
 		//************************************************************************************************************************
 		public TypeEnum Type { get; set; }
@@ -269,22 +269,22 @@ namespace BlockEditGen.Parse
 		/// <param name="access">'access' Custom Enumeration attribute contained in the XML element. Can be null.</param>
 		/// <param name="addr">'addr' String attribute contained in the XML element.</param>
 		/// <param name="conv">'conv' String attribute contained in the XML element. Can be null.</param>
-		/// <param name="description">'description' String attribute contained in the XML element. Can be null.</param>
 		/// <param name="name">'name' String attribute contained in the XML element.</param>
 		/// <param name="size">'size' String attribute contained in the XML element.</param>
 		/// <param name="subtype">'subtype' String attribute contained in the XML element. Can be null. Can be empty.</param>
+		/// <param name="tooltip">'tooltip' String attribute contained in the XML element. Can be null. Can be empty.</param>
 		/// <param name="type">'type' Custom Enumeration attribute contained in the XML element.</param>
 		/// <param name="units">'units' String attribute contained in the XML element. Can be null.</param>
 		///
 		/// <exception cref="ArgumentException">
-		///   <paramref name="addr"/>, <paramref name="conv"/>, <paramref name="description"/>, <paramref name="name"/>,
-		///   <paramref name="size"/>, or <paramref name="units"/> is an empty array.
+		///   <paramref name="addr"/>, <paramref name="conv"/>, <paramref name="name"/>, <paramref name="size"/>, or <paramref
+		///   name="units"/> is an empty array.
 		/// </exception>
 		/// <exception cref="ArgumentNullException">
 		///   <paramref name="addr"/>, <paramref name="name"/>, or <paramref name="size"/> is a null reference.
 		/// </exception>
 		//************************************************************************************************************************
-		public Value(AccessEnum? access, string addr, string conv, string description, string name, string size, string subtype,
+		public Value(AccessEnum? access, string addr, string conv, string name, string size, string subtype, string tooltip,
 			TypeEnum type, string units)
 		{
 			if(addr == null)
@@ -293,8 +293,6 @@ namespace BlockEditGen.Parse
 				throw new ArgumentException("addr is empty");
 			if(conv != null && conv.Length == 0)
 				throw new ArgumentException("conv is empty");
-			if(description != null && description.Length == 0)
-				throw new ArgumentException("description is empty");
 			if(name == null)
 				throw new ArgumentNullException("name");
 			if(name.Length == 0)
@@ -308,10 +306,10 @@ namespace BlockEditGen.Parse
 			Access = access;
 			Addr = addr;
 			Conv = conv;
-			Description = description;
 			Name = name;
 			Size = size;
 			Subtype = subtype;
+			Tooltip = tooltip;
 			Type = type;
 			Units = units;
 			Ordinal = -1;
@@ -375,11 +373,6 @@ namespace BlockEditGen.Parse
 			if(valueString != null)
 				returnElement.SetAttribute("conv", valueString);
 
-			// description
-			valueString = GetDescriptionString();
-			if(valueString != null)
-				returnElement.SetAttribute("description", valueString);
-
 			// name
 			valueString = GetNameString();
 			returnElement.SetAttribute("name", valueString);
@@ -392,6 +385,11 @@ namespace BlockEditGen.Parse
 			valueString = GetSubtypeString();
 			if(valueString != null)
 				returnElement.SetAttribute("subtype", valueString);
+
+			// tooltip
+			valueString = GetTooltipString();
+			if(valueString != null)
+				returnElement.SetAttribute("tooltip", valueString);
 
 			// type
 			valueString = GetTypeString();
@@ -448,16 +446,6 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Gets a string representation of Description.</summary>
-		///
-		/// <returns>String representing the value. Can be null.</returns>
-		//************************************************************************************************************************
-		public string GetDescriptionString()
-		{
-			return Description;
-		}
-
-		//************************************************************************************************************************
 		/// <summary>Gets a string representation of Name.</summary>
 		///
 		/// <returns>String representing the value.</returns>
@@ -485,6 +473,16 @@ namespace BlockEditGen.Parse
 		public string GetSubtypeString()
 		{
 			return Subtype;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Gets a string representation of Tooltip.</summary>
+		///
+		/// <returns>String representing the value. Can be null. Can be empty.</returns>
+		//************************************************************************************************************************
+		public string GetTooltipString()
+		{
+			return Tooltip;
 		}
 
 		//************************************************************************************************************************
@@ -584,13 +582,6 @@ namespace BlockEditGen.Parse
 			else
 				SetConvFromString(attrib.Value);
 
-			// description
-			attrib = node.Attributes["description"];
-			if(attrib == null)
-				Description = null;
-			else
-				SetDescriptionFromString(attrib.Value);
-
 			// name
 			attrib = node.Attributes["name"];
 			if(attrib == null)
@@ -611,6 +602,13 @@ namespace BlockEditGen.Parse
 				Subtype = null;
 			else
 				SetSubtypeFromString(attrib.Value);
+
+			// tooltip
+			attrib = node.Attributes["tooltip"];
+			if(attrib == null)
+				Tooltip = null;
+			else
+				SetTooltipFromString(attrib.Value);
 
 			// type
 			attrib = node.Attributes["type"];
@@ -717,31 +715,6 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Parses a string value and stores the data in Description.</summary>
-		///
-		/// <param name="value">String representation of the value.</param>
-		///
-		/// <exception cref="InvalidDataException">
-		///   <list type="bullet">
-		///     <listheader>One of the following:</listheader>
-		///     <item>The string value is an empty string.</item>
-		///     <item>The string value could not be parsed.</item>
-		///   </list>
-		/// </exception>
-		//************************************************************************************************************************
-		public void SetDescriptionFromString(string value)
-		{
-			if(value == null)
-			{
-				Description = null;
-				return;
-			}
-			if(value.Length == 0)
-				throw new InvalidDataException("The string value for 'description' is an empty string.");
-			Description = value;
-		}
-
-		//************************************************************************************************************************
 		/// <summary>Parses a string value and stores the data in Name.</summary>
 		///
 		/// <param name="value">String representation of the value.</param>
@@ -800,6 +773,23 @@ namespace BlockEditGen.Parse
 				return;
 			}
 			Subtype = value;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Parses a string value and stores the data in Tooltip.</summary>
+		///
+		/// <param name="value">String representation of the value.</param>
+		///
+		/// <exception cref="InvalidDataException">The string value could not be parsed.</exception>
+		//************************************************************************************************************************
+		public void SetTooltipFromString(string value)
+		{
+			if(value == null)
+			{
+				Tooltip = null;
+				return;
+			}
+			Tooltip = value;
 		}
 
 		//************************************************************************************************************************

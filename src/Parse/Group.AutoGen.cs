@@ -1,23 +1,20 @@
-// Filename:    Enum.AutoGen.cs
+// Filename:    Group.AutoGen.cs
 // Owner:       Richard Dunkley
 // Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Enum (class)  (public, partial)
+// BlockEditGen.Parse.Group (class) (public, partial)
 //   Properties:
-//               ChildItems         (public)
-//               Id                 (public)
+//               ChildValues        (public)
+//               Name               (public)
 //               Ordinal            (public)
-//               Width              (public)
 //
 //   Methods:
-//               Enum(2)            (public)
+//               Group(2)           (public)
 //               CreateElement      (public)
-//               GetIdString        (public)
-//               GetWidthString     (public)
+//               GetNameString      (public)
 //               ParseXmlNode       (public)
-//               SetIdFromString    (public)
-//               SetWidthFromString (public)
+//               SetNameFromString  (public)
 //********************************************************************************************************************************
 using System;
 using System.Collections.Generic;
@@ -30,23 +27,21 @@ using System.Xml;
 namespace BlockEditGen.Parse
 {
 	//****************************************************************************************************************************
-	/// <summary>Enumerates various possible values for a set of bits.</summary>
+	/// <summary>In memory representation of the XML element "group".</summary>
 	//****************************************************************************************************************************
-	public partial class Enum
+	public partial class Group
 	{
 		#region Properties
 
 		//************************************************************************************************************************
 		/// <summary>Gets or sets the child XML elements.</summary>
 		//************************************************************************************************************************
-		public Item[] ChildItems { get; private set; }
+		public Value[] ChildValues { get; private set; }
 
 		//************************************************************************************************************************
-		/// <summary>
-		///   Gets or sets the identification string of this enumeration. Must be unique across all enumeration elements.
-		/// </summary>
+		/// <summary>Gets or sets the value of the child name component.</summary>
 		//************************************************************************************************************************
-		public string Id { get; set; }
+		public string Name { get; set; }
 
 		//************************************************************************************************************************
 		/// <summary>Gets the index of this object in relation to the other child element of this object's parent.</summary>
@@ -57,56 +52,45 @@ namespace BlockEditGen.Parse
 		//************************************************************************************************************************
 		public int Ordinal { get; set; }
 
-		//************************************************************************************************************************
-		/// <summary>Gets the width of the enumerated values.</summary>
-		//************************************************************************************************************************
-		public string Width { get; set; }
-
 		#endregion Properties
 
 		#region Methods
 
 		//************************************************************************************************************************
-		/// <overloads><summary>Instantiates a new <see cref="Enum"/> object.</summary></overloads>
+		/// <overloads><summary>Instantiates a new <see cref="Group"/> object.</summary></overloads>
 		///
-		/// <summary>Instantiates a new <see cref="Enum"/> object using the provided information.</summary>
+		/// <summary>Instantiates a new <see cref="Group"/> object using the provided information.</summary>
 		///
-		/// <param name="id">'id' String attribute contained in the XML element.</param>
-		/// <param name="width">'width' String attribute contained in the XML element.</param>
-		/// <param name="childItems">Array of item elements which are child elements of this node. Can be empty.</param>
+		/// <param name="name">'name' String attribute contained in the XML element.</param>
+		/// <param name="childValues">Array of value elements which are child elements of this node. Can be empty.</param>
 		///
-		/// <exception cref="ArgumentException"><paramref name="id"/>, or <paramref name="width"/> is an empty array.</exception>
+		/// <exception cref="ArgumentException"><paramref name="name"/> is an empty array.</exception>
 		/// <exception cref="ArgumentNullException">
-		///   <paramref name="id"/>, <paramref name="width"/>, or <paramref name="childItems"/> is a null reference.
+		///   <paramref name="name"/>, or <paramref name="childValues"/> is a null reference.
 		/// </exception>
 		//************************************************************************************************************************
-		public Enum(string id, string width, Item[] childItems)
+		public Group(string name, Value[] childValues)
 		{
-			if(id == null)
-				throw new ArgumentNullException("id");
-			if(id.Length == 0)
-				throw new ArgumentException("id is empty");
-			if(width == null)
-				throw new ArgumentNullException("width");
-			if(width.Length == 0)
-				throw new ArgumentException("width is empty");
-			if(childItems == null)
-				throw new ArgumentNullException("childItems");
-			Id = id;
-			Width = width;
-			ChildItems = childItems;
+			if(name == null)
+				throw new ArgumentNullException("name");
+			if(name.Length == 0)
+				throw new ArgumentException("name is empty");
+			if(childValues == null)
+				throw new ArgumentNullException("childValues");
+			Name = name;
+			ChildValues = childValues;
 			Ordinal = -1;
 
 			// Compute the maximum index used on any child items.
 			int maxIndex = 0;
-			foreach(Item item in ChildItems)
+			foreach(Value item in ChildValues)
 			{
 				if(item.Ordinal >= maxIndex)
 					maxIndex = item.Ordinal + 1; // Set to first index after this index.
 			}
 
 			// Assign ordinal for any child items that don't have it set (-1).
-			foreach(Item item in ChildItems)
+			foreach(Value item in ChildValues)
 			{
 				if(item.Ordinal == -1)
 					item.Ordinal = maxIndex++;
@@ -114,13 +98,13 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Instantiates a new <see cref="Enum"/> object from an <see cref="XmlNode"/> object.</summary>
+		/// <summary>Instantiates a new <see cref="Group"/> object from an <see cref="XmlNode"/> object.</summary>
 		///
 		/// <param name="node"><see cref="XmlNode"/> containing the data to extract.</param>
 		/// <param name="ordinal">Index of the <see cref="XmlNode"/> in it's parent elements.</param>
 		///
 		/// <exception cref="ArgumentException">
-		///   <paramref name="node"/> does not correspond to a enum node or is not an 'Element' type node or <paramref
+		///   <paramref name="node"/> does not correspond to a group node or is not an 'Element' type node or <paramref
 		///   name="ordinal"/> is negative.
 		/// </exception>
 		/// <exception cref="ArgumentNullException"><paramref name="node"/> is a null reference.</exception>
@@ -128,7 +112,7 @@ namespace BlockEditGen.Parse
 		///   An error occurred while reading the data into the node, or one of it's child nodes.
 		/// </exception>
 		//************************************************************************************************************************
-		public Enum(XmlNode node, int ordinal)
+		public Group(XmlNode node, int ordinal)
 		{
 			if(node == null)
 				throw new ArgumentNullException("node");
@@ -153,21 +137,17 @@ namespace BlockEditGen.Parse
 		{
 			if(doc == null)
 				throw new ArgumentNullException("doc");
-			XmlElement returnElement = doc.CreateElement("enum");
+			XmlElement returnElement = doc.CreateElement("group");
 
 			string valueString;
 
-			// id
-			valueString = GetIdString();
-			returnElement.SetAttribute("id", valueString);
-
-			// width
-			valueString = GetWidthString();
-			returnElement.SetAttribute("width", valueString);
+			// name
+			valueString = GetNameString();
+			returnElement.SetAttribute("name", valueString);
 			// Build up dictionary of indexes and corresponding items.
 			Dictionary<int, object> lookup = new Dictionary<int, object>();
 
-			foreach(Item child in ChildItems)
+			foreach(Value child in ChildValues)
 			{
 				if(lookup.ContainsKey(child.Ordinal))
 					throw new InvalidOperationException("An attempt was made to generate the XML element with two child elements"
@@ -181,30 +161,20 @@ namespace BlockEditGen.Parse
 
 			foreach (int key in keys)
 			{
-				if(lookup[key] is Item)
-					returnElement.AppendChild(((Item)lookup[key]).CreateElement(doc));
+				if(lookup[key] is Value)
+					returnElement.AppendChild(((Value)lookup[key]).CreateElement(doc));
 			}
 			return returnElement;
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Gets a string representation of Id.</summary>
+		/// <summary>Gets a string representation of Name.</summary>
 		///
 		/// <returns>String representing the value.</returns>
 		//************************************************************************************************************************
-		public string GetIdString()
+		public string GetNameString()
 		{
-			return Id;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Gets a string representation of Width.</summary>
-		///
-		/// <returns>String representing the value.</returns>
-		//************************************************************************************************************************
-		public string GetWidthString()
-		{
-			return Width;
+			return Name;
 		}
 
 		//************************************************************************************************************************
@@ -213,7 +183,7 @@ namespace BlockEditGen.Parse
 		/// <param name="node"><see cref="XmlNode"/> containing the data to extract.</param>
 		/// <param name="ordinal">Index of the <see cref="XmlNode"/> in it's parent elements.</param>
 		///
-		/// <exception cref="ArgumentException"><paramref name="node"/> does not correspond to a enum node.</exception>
+		/// <exception cref="ArgumentException"><paramref name="node"/> does not correspond to a group node.</exception>
 		/// <exception cref="ArgumentNullException"><paramref name="node"/> is a null reference.</exception>
 		/// <exception cref="InvalidDataException">
 		///   An error occurred while reading the data into the node, or one of it's child nodes.
@@ -223,40 +193,33 @@ namespace BlockEditGen.Parse
 		{
 			if(node == null)
 				throw new ArgumentNullException("node");
-			if(string.Compare(node.Name, "enum", false) != 0)
-				throw new ArgumentException("node does not correspond to a enum node.");
+			if(string.Compare(node.Name, "group", false) != 0)
+				throw new ArgumentException("node does not correspond to a group node.");
 
 			XmlAttribute attrib;
 
-			// id
-			attrib = node.Attributes["id"];
+			// name
+			attrib = node.Attributes["name"];
 			if(attrib == null)
-				throw new InvalidDataException("An XML string Attribute (id) is not optional, but was not found in the XML"
-					+ " element (enum).");
-			SetIdFromString(attrib.Value);
-
-			// width
-			attrib = node.Attributes["width"];
-			if(attrib == null)
-				throw new InvalidDataException("An XML string Attribute (width) is not optional, but was not found in the XML"
-					+ " element (enum).");
-			SetWidthFromString(attrib.Value);
+				throw new InvalidDataException("An XML string Attribute (name) is not optional, but was not found in the XML"
+					+ " element (group).");
+			SetNameFromString(attrib.Value);
 
 			// Read the child objects.
-			List<Item> childItemsList = new List<Item>();
+			List<Value> childValuesList = new List<Value>();
 			int index = 0;
 			foreach(XmlNode child in node.ChildNodes)
 			{
-				if(child.NodeType == XmlNodeType.Element && child.Name == "item")
-					childItemsList.Add(new Item(child, index++));
+				if(child.NodeType == XmlNodeType.Element && child.Name == "value")
+					childValuesList.Add(new Value(child, index++));
 			}
-			ChildItems = childItemsList.ToArray();
+			ChildValues = childValuesList.ToArray();
 
 			Ordinal = ordinal;
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Parses a string value and stores the data in Id.</summary>
+		/// <summary>Parses a string value and stores the data in Name.</summary>
 		///
 		/// <param name="value">String representation of the value.</param>
 		///
@@ -268,35 +231,13 @@ namespace BlockEditGen.Parse
 		///   </list>
 		/// </exception>
 		//************************************************************************************************************************
-		public void SetIdFromString(string value)
+		public void SetNameFromString(string value)
 		{
 			if(value == null)
-				throw new InvalidDataException("The string value for 'id' is a null reference.");
+				throw new InvalidDataException("The string value for 'name' is a null reference.");
 			if(value.Length == 0)
-				throw new InvalidDataException("The string value for 'id' is an empty string.");
-			Id = value;
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Parses a string value and stores the data in Width.</summary>
-		///
-		/// <param name="value">String representation of the value.</param>
-		///
-		/// <exception cref="InvalidDataException">
-		///   <list type="bullet">
-		///     <listheader>One of the following:</listheader>
-		///     <item>The string value is a null reference or an empty string.</item>
-		///     <item>The string value could not be parsed.</item>
-		///   </list>
-		/// </exception>
-		//************************************************************************************************************************
-		public void SetWidthFromString(string value)
-		{
-			if(value == null)
-				throw new InvalidDataException("The string value for 'width' is a null reference.");
-			if(value.Length == 0)
-				throw new InvalidDataException("The string value for 'width' is an empty string.");
-			Width = value;
+				throw new InvalidDataException("The string value for 'name' is an empty string.");
+			Name = value;
 		}
 
 		#endregion Methods

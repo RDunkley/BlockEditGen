@@ -1,31 +1,33 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <block version="1.0.0.0" size_in_bytes="4096" access="RW" id="Clock1" name="Clock 1" description="Register block for clock 1.">
-	<enum width="0.8" designator="ClockAttributes" >
-		<item value="0x0" name="Single Bit" description="Clock is a single bit." />
-		<item value="0x1" name="Differential" description="Clock is a differential pair." />
-		<item value="0x2" name="Jitter Profile" description="Clock has a jitter profile associated with it." />
+	<enum width="0.8" id="ClockAttributes" >
+		<item value="0x0" name="Single Bit" tooltip="Clock is a single bit." />
+		<item value="0x1" name="Differential" tooltip="Clock is a differential pair." />
+		<item value="0x2" name="Jitter Profile" tooltip="Clock has a jitter profile associated with it." />
 	</enum>
-	<enum width="0.3" designator="PllType" >
-		<item value="000b" name="Phase Locked Loop" description="Clock is generated using a phase locked loop." />
-		<item value="001b" name="I/O Dynamic Locked Loop" description="Clock is an I/O driven Dynamic locked loop." />
+	<enum width="0.3" id="PllType" >
+		<item value="000b" name="Phase Locked Loop" tooltip="Clock is generated using a phase locked loop." />
+		<item value="001b" name="I/O Dynamic Locked Loop" tooltip="Clock is an I/O driven Dynamic locked loop." />
 	</enum>
-	<conv gain="1.0" offset="5.34" designator="Conv1" />
-	<value addr="0x00.0" size="0.1" type="bool" subtype="Down,Up" name="Power Status (Attributes Register 1)" description="Powers the clock down." />
-	<value addr="0x00.1" size="0.1" type="bool" subtype="De-asserted,Asserted" name="Reset (Attributes Register 1)" description="Resets the IC." />
-	<value addr="0x00.2" size="0.8" access="R" type="string" subtype="ASCII" name="Manufacturer Code (Attributes Register 1)" description="Manufacturer code of the IC." />
-	<value addr="0x00.10" size="0.6" type="uint8" subtype="hex" name="Code (Attributes Register 1)" description="Code." />
-	<value addr="0x00.16" size="0.8" access="R" type="enum" subtype="ClockAttributes" name="Attribute (Attributes Register 1)" description="Attribute." />
-	<value addr="0x00.24" size="0.8" access="R" type="int8" name="Attribute Code (Attributes Register 1)" description="Attribute Code." />
-	<value addr="0x00.32" size="0.32" type="int32" subtype="be" name="Count Register 1 (Attributes Register 1)" description="Count Register 1." />
-	<value addr="0x08" size="16" access="R" type="string" subtype="UTF8" name="String 1" description="String 1." />
-	<value addr="0x18" size="16" access="RW" type="string" subtype="Unicode" name="String 2" description="String 2." />
-	<value addr="0x28" size="4" type="ip" subtype="4" name="IP Address" description="IP Address." />
-	<value addr="0x30" size="0.48" access="R" type="mac" name="MAC Address" description="MAC Address." />
-	<value addr="0x38" size="8" type="double" subtype="16" units="s" conv="Conv1" name="Computation 1" description="Computation 1." />
-	<value addr="0x40" size="4" type="float" subtype="4" units="ms" name="Computation 2" description="Computation 2." />
-	<value addr="0x44" size="4" type="float" subtype="4" units="lbs/inch" conv="Conv1" name="Computation 3" description="Computation 3." />
-	<value addr="0x48" size="4" access="R" type="int32" subtype="le" units="l" conv="Conv1" name="Computation 4" description="Computation 4." />
-	<value addr="0x4C" size="0.3" type="enum" subtype="PllType" name="PLL" description="PLL Description" />
-	<value addr="0x4C.7" size="0.1" access="R" type="bool" subtype="Low,High" name="Single Bool Line" description="Single Bool Line descrption" />
+	<conv gain="1.0" offset="5.34" id="Conv1" />
+	<group name="Control Register" >
+		<value addr="0x00.0" size="0.1" type="bool" subtype="Down,Up" name="Power Status (Attributes Register 1)" tooltip="Powers the clock down." />
+		<value addr="0x00.1" size="0.1" type="bool" subtype="De-asserted,Asserted" name="Reset (Attributes Register 1)" tooltip="Resets the IC." />
+		<value addr="0x00.2" size="0.8" access="R" type="string" subtype="ASCII" name="Manufacturer Code (Attributes Register 1)" tooltip="Manufacturer code of the IC." />
+		<value addr="0x00.10" size="0.6" type="uint8" subtype="hex" name="Code (Attributes Register 1)" tooltip="Code." />
+		<value addr="0x00.16" size="0.8" access="R" type="enum" subtype="ClockAttributes" name="Attribute (Attributes Register 1)" tooltip="Attribute." />
+		<value addr="0x00.24" size="0.8" access="R" type="int8" name="Attribute Code (Attributes Register 1)" tooltip="Attribute Code." />
+		<value addr="0x00.32" size="0.32" type="int32" subtype="be" name="Count Register 1 (Attributes Register 1)" tooltip="Count Register 1." />
+	</group>
+	<value addr="0x08" size="16" access="R" type="string" subtype="UTF8" name="String 1" tooltip="String 1." />
+	<value addr="0x18" size="16" access="RW" type="string" subtype="Unicode" name="String 2" tooltip="String 2." />
+	<value addr="0x28" size="4" type="ip" subtype="4" name="IP Address" tooltip="IP Address." />
+	<value addr="0x30" size="0.48" access="R" type="mac" name="MAC Address" tooltip="MAC Address." />
+	<value addr="0x38" size="8" type="double" subtype="16" units="s" conv="Conv1" name="Computation 1" tooltip="Computation 1." />
+	<value addr="0x40" size="4" type="float" subtype="4" units="ms" name="Computation 2" tooltip="Computation 2." />
+	<value addr="0x44" size="4" type="float" subtype="4" units="lbs/inch" conv="Conv1" name="Computation 3" tooltip="Computation 3." />
+	<value addr="0x48" size="4" access="R" type="int32" subtype="le" units="l" conv="Conv1" name="Computation 4" tooltip="Computation 4." />
+	<value addr="0x4C" size="0.3" type="enum" subtype="PllType" name="PLL" tooltip="PLL Description" />
+	<value addr="0x4C.7" size="0.1" access="R" type="bool" subtype="Low,High" name="Single Bool Line" tooltip="Single Bool Line descrption" />
 	
 </block>

@@ -134,11 +134,26 @@ namespace BlockEditGen.ViewModels
 			var buf = new byte[LengthInBytes];
 			_block.ReadSection(_value.Address, _value.Length, buf);
 			T val = BytesToValue(buf);
-			return ValueToString(val);
+
+			if(_value.Conversion == null)
+				return ValueToString(val);
+
+			// Value has a conversion so output as a decimal (instead of the various unsigned formats).
+			return ConvertRegToValue(_value.Conversion, Convert.ToDouble(val));
 		}
 
 		protected override bool TrySetString(string value)
 		{
+			if (_value.Conversion != null)
+			{
+				// Value has a conversion type so assume it is brought in as a decimal value (instead of the various unsigned formats).
+				if (!TryConvertValueToReg(_value.Conversion, value, out double regVal))
+					return false;
+
+				// Convert to a unsigned value.
+				value = Convert.ToUInt64(regVal).ToString();
+			}
+
 			if (!TryParse(value, out T result)) return false;
 			if (result > BitMask) return false;
 

@@ -47,7 +47,7 @@ namespace BlockEditGen.ViewModels
 		public static Thickness Margin { get; set; } = new Thickness(5, 5, 5, 5);
 
 		public string Name { get { return _value.Name; } }
-		public string Description { get { return _value.Description; } }
+		public string Description { get { return _value.Tooltip; } }
 		public bool IsReadOnly { get { return _value.Accessibility == AccessType.Read; } }
 		public bool HasError { get; protected set; }
 
