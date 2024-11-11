@@ -24,7 +24,6 @@
 using BlockEditGen.Data;
 using BlockEditGen.Interfaces;
 using BlockEditGen.Parse;
-using System;
 using System.Globalization;
 using System.Numerics;
 

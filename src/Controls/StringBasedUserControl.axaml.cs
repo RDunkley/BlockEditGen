@@ -22,6 +22,7 @@
 // SOFTWARE.
 // ******************************************************************************************************************************
 using Avalonia.Controls;
+using Avalonia.Data;
 
 namespace BlockEditGen.Controls;
 
@@ -42,5 +43,13 @@ public partial class StringBasedUserControl : UserControl
 	public StringBasedUserControl()
 	{
 		InitializeComponent();
+
+		var binding = new Binding
+		{
+			Path = "ValueString",
+			Mode = BindingMode.TwoWay,
+			UpdateSourceTrigger = UpdateSourceTrigger.LostFocus,
+		};
+		valueTextBox.Bind(TextBox.TextProperty, binding);
 	}
 }

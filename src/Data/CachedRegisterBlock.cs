@@ -22,21 +22,18 @@
 // SOFTWARE.
 // ******************************************************************************************************************************
 using BlockEditGen.Interfaces;
-using System;
 using System.ComponentModel;
-using System.Net;
 using System.Numerics;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
 
 namespace BlockEditGen.Data
 {
-    /// <summary>
-    ///   Register block that provides a caching and state mechnism for an underlying register block.
-    /// </summary>
-    /// <typeparam name="T">Must be byte, ushort, uint, or ulong.</typeparam>
-    public class CachedRegisterBlock<T> : INotifyPropertyChanged, ICachedRegisterBlock where T : struct, INumber<T>, IUnsignedNumber<T>
+	/// <summary>
+	///   Register block that provides a caching and state mechnism for an underlying register block.
+	/// </summary>
+	/// <typeparam name="T">Must be byte, ushort, uint, or ulong.</typeparam>
+	public class CachedRegisterBlock<T> : INotifyPropertyChanged, ICachedRegisterBlock where T : struct, INumber<T>, IUnsignedNumber<T>
 	{
 		#region Fields
 
@@ -258,6 +255,7 @@ namespace BlockEditGen.Data
 					_cache.Span[address.Bytes + length.Bytes] |= (byte)(src[length.Bytes] & mask); // Add the final source bits.
 					UpdateState(address.Bytes + length.Bytes);
 				}
+				OnCacheChanged();
 				return;
 			}
 
@@ -284,6 +282,7 @@ namespace BlockEditGen.Data
 				srcBitIndex %= 8;
 				written.AddBits(numBitsToWrite);
 			}
+			OnCacheChanged();
 		}
 
 		/// <summary>

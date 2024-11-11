@@ -34,7 +34,6 @@
 			IsReadOnly="{Binding IsReadOnly, Mode=OneWay}"
 			AcceptsReturn="False"
 			TextWrapping="NoWrap"
-			Text="{Binding ValueString, Mode=TwoWay}"
 		/>
 		<TextBlock
 			Margin="{Binding Margin}"
