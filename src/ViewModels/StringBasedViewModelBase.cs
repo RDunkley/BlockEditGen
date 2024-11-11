@@ -68,6 +68,13 @@ namespace BlockEditGen.ViewModels
 		public StringBasedViewModelBase(Value value, ICachedRegisterBlock block)
 			: base(value, block)
 		{
+			block.CacheChanged += Block_CacheChanged;
+		}
+
+		private void Block_CacheChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(ValueString));
+			OnPropertyChanged(nameof(CurrentState));
 		}
 
 		protected bool TryConvertValueToReg(Conv conv, string inputVal, out double regVal)
