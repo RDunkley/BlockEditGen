@@ -228,7 +228,7 @@ namespace BlockEditGen.Data
 		/// <param name="src">Source <see cref="Span{T}"/> to write the data from. Data is read from this array aligned and possibly written misaligned to the cache.</param>
 		/// <exception cref="ArgumentNullException"><paramref name="address"/>, <paramref name="src"/> or <paramref name="length"/> is null.</exception>
 		/// <exception cref="ArgumentException">The number of bytes <paramref name="length"/> takes up does not match the source array length.</exception>
-		public void WriteSection(ByteBitValue address, ByteBitValue length, Span<byte> src)
+		public void WriteSection(ByteBitValue address, ByteBitValue length, ReadOnlySpan<byte> src)
 		{
 			if (address == null) throw new ArgumentNullException(nameof(address));
 			if (length == null) throw new ArgumentNullException(nameof(length));
@@ -435,7 +435,7 @@ namespace BlockEditGen.Data
 				if (GetRegState(regIndex) == DataControlState.Modified)
 				{
 					var startReg = regIndex++;
-					while (GetRegState(regIndex) == DataControlState.Modified && regIndex < numRegs)
+					while (regIndex < numRegs && GetRegState(regIndex) == DataControlState.Modified)
 					{
 						regIndex++;
 					}

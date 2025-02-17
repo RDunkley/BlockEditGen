@@ -56,7 +56,7 @@ namespace BlockEditGen.Interfaces
 		/// <param name="address">Address to begin writing at.</param>
 		/// <param name="length">Number of bytes/bits to write.</param>
 		/// <param name="src">Source <see cref="Span{T}"/> to write the data from. Data is read from this array aligned and possibly written misaligned to the cache.</param>
-		void WriteSection(ByteBitValue address, ByteBitValue length, Span<byte> src);
+		void WriteSection(ByteBitValue address, ByteBitValue length, ReadOnlySpan<byte> src);
 
 		/// <summary>
 		///   Returns the state of the section of interest.
