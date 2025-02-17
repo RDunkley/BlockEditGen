@@ -63,12 +63,15 @@ namespace BlockEditGen.ViewModels
 			}
 		}
 
-		/*public EnumViewModel()
+		public EnumViewModel()
 			: this(
-				new Value(Value.AccessEnum.ReadWrite, "0x0"
-				  )
+				new Block(Block.AccessEnum.ReadWrite, "block description", "Block ID", "Block Name", 4096, new Version(1,0), null,
+					[new("enum_id", "0.3", [new("Item1", "Item 1 Description", 0)])], null,
+					[new Value(Value.AccessEnum.ReadWrite, null, null, "ValueName", "0.3", "enum_id", "Enum Tooltip", Value.TypeEnum.Enum, null)]).ChildValues[0],
+				new CachedRegisterBlock<byte>(new RamRegisterBlock<byte>(4096))
+			)
 		{
-		}*/
+		}
 
 		public EnumViewModel(Value value, ICachedRegisterBlock block)
 			: base(value, block)
@@ -87,6 +90,14 @@ namespace BlockEditGen.ViewModels
 				Items[i] = _items[i].Name;
 				_itemLookupByValue.Add(_items[i].Value, i);
 			}
+
+			block.CacheChanged += Block_CacheChanged;
+		}
+
+		private void Block_CacheChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(SelectedIndex));
+			OnPropertyChanged(nameof(CurrentState));
 		}
 
 		private ulong ConvertBufToVal(byte[] buf)

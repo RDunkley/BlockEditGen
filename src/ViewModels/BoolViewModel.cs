@@ -21,6 +21,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ******************************************************************************************************************************
+using Avalonia.Media;
 using BlockEditGen.Data;
 using BlockEditGen.Interfaces;
 using BlockEditGen.Parse;
@@ -84,6 +85,14 @@ namespace BlockEditGen.ViewModels
 			// For the designer.
 			LowText = splits[0];
 			HighText = splits[1];
+
+			block.CacheChanged += Block_CacheChanged;
+		}
+
+		private void Block_CacheChanged(object sender, EventArgs e)
+		{
+			OnPropertyChanged(nameof(IsChecked));
+			OnPropertyChanged(nameof(CurrentState));
 		}
 	}
 }

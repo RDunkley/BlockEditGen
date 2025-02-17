@@ -38,11 +38,10 @@ namespace BlockEditGen.ViewModels
 
 		#region Read-Only Properties
 
+		public int FontSize { get { return PanelFactory.FontSize; } }
+		public FontFamily FontFamily { get { return PanelFactory.FontFamily; } }
+
 		public int LengthInBytes { get; protected set; }
-
-		public static int FontSize { get; set; } = 16;
-
-		public static FontFamily FontFamily { get; set; } = FontFamily.Default;
 
 		public static Thickness Margin { get; set; } = new Thickness(5, 5, 5, 5);
 

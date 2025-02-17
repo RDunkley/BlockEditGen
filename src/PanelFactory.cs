@@ -21,18 +21,25 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ******************************************************************************************************************************
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Controls.Primitives;
+using Avalonia.Layout;
 using Avalonia.Media;
 using BlockEditGen.Controls;
 using BlockEditGen.Interfaces;
 using BlockEditGen.Parse;
 using BlockEditGen.ViewModels;
+using System.Xml.Linq;
 
 namespace BlockEditGen
 {
 	public static class PanelFactory
 	{
+		public static int FontSize { get; set; } = 22;
+
+		public static FontFamily FontFamily { get; set; } = new FontFamily("Arial");
+
 		public static void PopulatePanel(ICachedRegisterBlock block, string xmlPath, Panel panel)
 		{
 			var pBlock = new Block(xmlPath);
@@ -43,19 +50,17 @@ namespace BlockEditGen
 
 		public static void PopulatePanel(ICachedRegisterBlock block, Block pBlock, Panel panel)
 		{
-			DataViewModelBase.FontFamily = new FontFamily("Arial");
-
 			panel.Children.Clear();
 			var sv = new ScrollViewer
 			{
-				HorizontalScrollBarVisibility = Avalonia.Controls.Primitives.ScrollBarVisibility.Visible,
+				HorizontalScrollBarVisibility = ScrollBarVisibility.Visible,
 			};
 
 			var stackPanel = new StackPanel
 			{
-				HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-				Orientation = Avalonia.Layout.Orientation.Vertical,
-				Margin = new Avalonia.Thickness(20, 20, 20, 20),
+				HorizontalAlignment = HorizontalAlignment.Stretch,
+				Orientation = Orientation.Vertical,
+				Margin = new Thickness(20, 20, 20, 20),
 			};
 			sv.Content = stackPanel;
 			panel.Children.Add(sv);
@@ -75,20 +80,20 @@ namespace BlockEditGen
 					{
 						Header = group.Name,
 						//Background = new SolidColorBrush(Colors.Black),
-						Padding = new Avalonia.Thickness(10),
-						Margin = new Avalonia.Thickness(10),
-						BorderThickness = new Avalonia.Thickness(2),
+						Padding = new Thickness(10),
+						Margin = new Thickness(10),
+						BorderThickness = new Thickness(2),
 						Content = new Border
 						{
 							BorderBrush = new SolidColorBrush(Colors.Black),
-							BorderThickness = new Avalonia.Thickness(1),
-							Padding = new Avalonia.Thickness(1),
+							BorderThickness = new Thickness(1),
+							Padding = new Thickness(1),
 							Child = new StackPanel
 							{
-								HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch,
-								VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch,
-								Orientation = Avalonia.Layout.Orientation.Vertical,
-								Margin = new Avalonia.Thickness(5, 5, 5, 5),
+								HorizontalAlignment = HorizontalAlignment.Stretch,
+								VerticalAlignment = VerticalAlignment.Stretch,
+								Orientation = Orientation.Vertical,
+								Margin = new Thickness(5, 5, 5, 5),
 							}
 						}
 					};
@@ -113,15 +118,15 @@ namespace BlockEditGen
 
 		private static double GetMaxPixelWidthOfNames(Value[] values)
 		{
-			string maxName = string.Empty;
+			var typeFace = new Typeface(FontFamily);
+			double maxSize = 0.0;
 			foreach (var value in values)
 			{
-				if (value.Name.Length > maxName.Length)
-					maxName = value.Name;
+				var nameFormattedText = new FormattedText($"{value.Name}:", System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeFace, FontSize, Brushes.Black);
+				if(nameFormattedText.WidthIncludingTrailingWhitespace > maxSize)
+					maxSize = nameFormattedText.WidthIncludingTrailingWhitespace;
 			}
-			var typeFace = new Typeface(DataViewModelBase.FontFamily);
-			var nameFormattedText = new FormattedText(maxName, System.Globalization.CultureInfo.CurrentCulture, FlowDirection.LeftToRight, typeFace, DataViewModelBase.FontSize, Brushes.Black);
-			return nameFormattedText.WidthIncludingTrailingWhitespace;
+			return maxSize;
 		}
 
 		private static void AddValueControl(StackPanel panel, double nameWidth, Value value, ICachedRegisterBlock block)
@@ -225,8 +230,8 @@ namespace BlockEditGen
 
 			if (newControl != null)
 			{
-				newControl.HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Stretch;
-				newControl.VerticalAlignment = Avalonia.Layout.VerticalAlignment.Stretch;
+				newControl.HorizontalAlignment = HorizontalAlignment.Stretch;
+				newControl.VerticalAlignment = VerticalAlignment.Stretch;
 				panel.Children.Add(newControl);
 			}
 		}
