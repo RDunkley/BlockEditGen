@@ -22,24 +22,58 @@
 // SOFTWARE.
 // ******************************************************************************************************************************
 using BlockEditGen.Data;
-using System;
-using System.Collections.Generic;
 
 namespace BlockEditGen.Parse
 {
+	/// <summary>
+	///   Partial <see cref="Enum"/> class to include custom code.
+	/// </summary>
 	public partial class Enum
 	{
+		#region Properties
+
+		/// <summary>
+		///   Item lookup table which references an item by it's value.
+		/// </summary>
 		public Dictionary<ulong, Item> ItemLookupByValue { get; private set; } = new Dictionary<ulong, Item>();
+
+		/// <summary>
+		///   Item lookup table which references an item by it's name.
+		/// </summary>
 		public Dictionary<string, Item> ItemLookupByName { get; private set; } = new Dictionary<string, Item>();
 
+		/// <summary>
+		///   Indexes into <see cref="ItemLookupByValue"/>.
+		/// </summary>
+		/// <param name="index">Value of the item to reference.</param>
+		/// <returns>Item referenced by the provided value.</returns>
 		public Item this[ulong index] { get => ItemLookupByValue[index]; }
 
+		/// <summary>
+		///   Indexes into <see cref="ItemLookupByName"/>.
+		/// </summary>
+		/// <param name="index">Name of the item to reference.</param>
+		/// <returns></returns>
 		public Item this[string index] { get => ItemLookupByName[index]; }
 
+		/// <summary>
+		///   Length of the enumeration's values.
+		/// </summary>
 		public ByteBitValue Length { get; private set; }
 
+		/// <summary>
+		///   Bit mask associated 
+		/// </summary>
 		public ulong BitMask { get; private set; }
 
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		///   Initializes the custom logic of the class.
+		/// </summary>
+		/// <exception cref="InvalidOperationException">Unable to initialize the enumeration.</exception>
 		public void Initialize()
 		{
 			Length = new ByteBitValue(Width);
@@ -55,15 +89,20 @@ namespace BlockEditGen.Parse
 				ItemLookupByName.Add(item.Name, item);
 
 				if(ItemLookupByValue.ContainsKey(item.Value))
-					throw new Exception($"The item value in {item.Name} is being used in one or more items in enum {Id}. Values must be unique across all items in an enum.");
+					throw new InvalidOperationException($"The item value in {item.Name} is being used in one or more items in enum {Id}. Values must be unique across all items in an enum.");
 				ItemLookupByValue.Add(item.Value, item);
 
 				// Check if item is larger than the available bit width.
 				if(item.Value > BitMask)
-					throw new Exception($"The item value ({item.Value}) with name {item.Name} in enum {Id} is greater than the available bits in the enum ({Width}).");
+					throw new InvalidOperationException($"The item value ({item.Value}) with name {item.Name} in enum {Id} is greater than the available bits in the enum ({Width}).");
 			}
 		}
 
+		/// <summary>
+		///   Gets a bitmask based on the <see cref="ByteBitValue"/> size.
+		/// </summary>
+		/// <param name="size">Size of the bitmask. Must be less than 64 bits.</param>
+		/// <returns>Generated bitmask.</returns>
 		private ulong GetBitMask(ByteBitValue size)
 		{
 			ulong mask = 0;
@@ -74,5 +113,7 @@ namespace BlockEditGen.Parse
 			}
 			return mask;
 		}
+
+		#endregion
 	}
 }

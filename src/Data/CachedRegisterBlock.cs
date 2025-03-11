@@ -93,7 +93,7 @@ namespace BlockEditGen.Data
 		#region Events
 
 		/// <summary>
-		///   Raised then values in the cache have changed using a <see cref="UpdateValuesFromRegisterBlock"/> or <see cref="PushChangedValuesToRegisterBlock"/> call.
+		///   Raised when values in the cache have changed using a <see cref="UpdateValuesFromRegisterBlockAsync"/> or <see cref="PushChangedValuesToRegisterBlockAsync"/> call.
 		/// </summary>
 		public event EventHandler CacheChanged;
 
@@ -152,6 +152,10 @@ namespace BlockEditGen.Data
 			if (dst.Length != dstSize)
 				throw new ArgumentException($"The length provided ({length}) does not match the destination array length ({dst.Length})");
 
+			// Clear the buffer.
+			for (int i = 0; i < dst.Length; i++)
+				dst[i] = 0;
+
 			if (address.Bits == 0)
 			{
 				// Cache location is on a byte boundary.
@@ -164,29 +168,40 @@ namespace BlockEditGen.Data
 				return;
 			}
 
-			// Clear the buffer.
-			for (int i = 0; i < dst.Length; i++)
-				dst[i] = 0;
-
 			// Copy over in bits (this is much slower).
-			var written = new ByteBitValue(0);
+			var addr = new ByteBitValue(address.TotalBits);
+			var read = new ByteBitValue(0);
+			while(read.TotalBits < length.TotalBits)
+			{
+				int numBitsToRead = 8 - addr.Bits; // Amount left in the source byte.
+				if (numBitsToRead > (8 - read.Bits)) // Reduce to amount left in destination byte.
+					numBitsToRead = 8 - read.Bits;
+				if (numBitsToRead > (length.TotalBits - read.TotalBits)) // Reduce to number of bits left.
+					numBitsToRead = (int)(length.TotalBits - read.TotalBits);
+
+				dst[read.Bytes] |= (byte)(((_cache.Span[addr.Bytes] >> addr.Bits) & GetBitMask(numBitsToRead)) << read.Bits);
+				addr.AddBits(numBitsToRead);
+				read.AddBits(numBitsToRead);
+			}
+
+			/*var read = new ByteBitValue(0);
 			var srcBitIndex = address.Bits;
 			var dstBitIndex = 0;
-			while(written.TotalBits < length.TotalBits)
+			while(read.TotalBits < length.TotalBits)
 			{
-				int numBitsToWrite = 8 - srcBitIndex; // Amount left in the source byte.
-				if (numBitsToWrite > (8 - dstBitIndex)) // Reduce to amount left in destination byte.
-					numBitsToWrite = 8 - dstBitIndex;
-				if (numBitsToWrite > (length.TotalBits - written.TotalBits)) // Reduce to number of bits left.
-					numBitsToWrite = (int)(length.TotalBits - written.TotalBits);
+				int numBitsToRead = 8 - srcBitIndex; // Amount left in the source byte.
+				if (numBitsToRead > (8 - dstBitIndex)) // Reduce to amount left in destination byte.
+					numBitsToRead = 8 - dstBitIndex;
+				if (numBitsToRead > (length.TotalBits - read.TotalBits)) // Reduce to number of bits left.
+					numBitsToRead = (int)(length.TotalBits - read.TotalBits);
 
-				dst[written.Bytes] |= (byte)(((_cache.Span[address.Bytes + written.Bytes] >> srcBitIndex) & GetBitMask(numBitsToWrite)) << dstBitIndex);
-				dstBitIndex += numBitsToWrite;
+				dst[read.Bytes] |= (byte)(((_cache.Span[(address + read).Bytes] >> srcBitIndex) & GetBitMask(numBitsToRead)) << dstBitIndex);
+				dstBitIndex += numBitsToRead;
 				dstBitIndex %= 8;
-				srcBitIndex += numBitsToWrite;
+				srcBitIndex += numBitsToRead;
 				srcBitIndex %= 8;
-				written.AddBits(numBitsToWrite);
-			}
+				read.AddBits(numBitsToRead);
+			}*/
 		}
 
 		private void UpdateState(int byteAddress)
@@ -260,7 +275,27 @@ namespace BlockEditGen.Data
 			}
 
 			// Copy over in bits (this is much slower).
+			var addr = new ByteBitValue(address.TotalBits);
 			var written = new ByteBitValue(0);
+			while(written.TotalBits < length.TotalBits)
+			{
+				int numBitsToWrite = 8 - written.Bits; // Amount left in the source byte.
+				if (numBitsToWrite > (8 - addr.Bits)) // Reduce to amount left in destination byte.
+					numBitsToWrite = 8 - addr.Bits;
+				if (numBitsToWrite > (length.TotalBits - written.TotalBits)) // Reduce to number of bits left.
+					numBitsToWrite = (int)(length.TotalBits - written.TotalBits);
+
+				var mask = GetBitMask(numBitsToWrite) << addr.Bits;
+				_cache.Span[addr.Bytes] &= (byte)~mask; // Clear the bits we are going to overwrite.
+				_cache.Span[addr.Bytes] |= (byte)(((src[written.Bytes] >> written.Bits) << addr.Bits) & mask);
+				UpdateState(addr.Bytes);
+
+				addr.AddBits(numBitsToWrite);
+				written.AddBits(numBitsToWrite);
+			}
+			OnCacheChanged();
+
+			/*var written = new ByteBitValue(0);
 			var srcBitIndex = 0;
 			var dstBitIndex = address.Bits;
 			while (written.TotalBits < length.TotalBits)
@@ -282,7 +317,7 @@ namespace BlockEditGen.Data
 				srcBitIndex %= 8;
 				written.AddBits(numBitsToWrite);
 			}
-			OnCacheChanged();
+			OnCacheChanged();*/
 		}
 
 		/// <summary>

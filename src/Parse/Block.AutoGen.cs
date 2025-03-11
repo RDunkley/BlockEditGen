@@ -1,79 +1,11 @@
+// ******************************************************************************************************************************
 // Filename:    Block.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
-// Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Block (class)                         (public, partial)
-//   Enumerations:
-//                 AccessEnum                               (public)
-//                 SizeInBytesIntegerFormat                 (public)
-//                 VersionVersionType                       (public)
-//
-//   Fields:
-//                 mDefaultXMLEncoding                      (private, const)
-//                 mDefaultXMLVersion                       (private, const)
-//
-//   Properties:
-//                 Access                                   (public)
-//                 ChildConvs                               (public)
-//                 ChildEnums                               (public)
-//                 ChildGroups                              (public)
-//                 ChildValues                              (public)
-//                 Description                              (public)
-//                 Id                                       (public)
-//                 Name                                     (public)
-//                 Ordinal                                  (public)
-//                 SizeInBytes                              (public)
-//                 SizeInBytesFormat                        (public)
-//                 Version                                  (public)
-//                 VersionParsedType                        (public)
-//                 XmlFileEncoding                          (public)
-//                 XmlFileVersion                           (public)
-//
-//   Methods:
-//                 Block(6)                                 (public)
-//                 CreateElement                            (public)
-//                 ExportToXML(4)                           (public)
-//                 GetAccessString                          (public)
-//                 GetDescriptionString                     (public)
-//                 GetIdString                              (public)
-//                 GetNameString                            (public)
-//                 GetSizeInBytesString                     (public)
-//                 GetVersionString                         (public)
-//                 ImportFromXML(4)                         (public)
-//                 ParseXmlNode                             (public)
-//                 SetAccessFromString                      (public)
-//                 SetDescriptionFromString                 (public)
-//                 SetIdFromString                          (public)
-//                 SetNameFromString                        (public)
-//                 SetSizeInBytesFromString                 (public)
-//                 SetVersionFromString                     (public)
+// Copyright © Richard Dunkley 2024, Sequent Logic, LLC 2025
 //********************************************************************************************************************************
-// BlockEditGen.Parse.Block.AccessEnum (enum)               (public)
-//   Names:
-//                 ReadWrite
-//                 Read
-//                 Write
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Block.SizeInBytesIntegerFormat (enum) (public)
-//   Names:
-//                 HexType2
-//                 Integer
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Block.VersionVersionType (enum)       (public)
-//   Names:
-//                 MajorMinor
-//                 MajorMinorBuild
-//                 MajorMinorBuildRevision
-//********************************************************************************************************************************
-using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.IO;
-using System.Linq;
 using System.Security;
-using System.Text;
-using System.Threading.Tasks;
 using System.Xml;
 
 namespace BlockEditGen.Parse
@@ -179,6 +111,16 @@ namespace BlockEditGen.Parse
 		public AccessEnum? Access { get; set; }
 
 		//************************************************************************************************************************
+		/// <summary>Gets addressable size of the addressing in the block. Can be null.</summary>
+		///
+		/// <remarks>
+		///   This determines whether the address specified in the configuration file are byte, 16-bit word, 32-bit word, or
+		///   64-bit word addressable. Only 1, 2, 4, and 8 are allowed. Defaults to 1.
+		/// </remarks>
+		//************************************************************************************************************************
+		public int? Addressable { get; set; }
+
+		//************************************************************************************************************************
 		/// <summary>Gets or sets the child XML elements.</summary>
 		//************************************************************************************************************************
 		public Conv[] ChildConvs { get; private set; }
@@ -269,6 +211,9 @@ namespace BlockEditGen.Parse
 		/// <summary>Instantiates a new <see cref="Block"/> object using the provided information.</summary>
 		///
 		/// <param name="access">'access' Custom Enumeration attribute contained in the XML element. Can be null.</param>
+		/// <param name="addressable">
+		///   'addressable' 32-bit signed integer attribute contained in the XML element. Can be null.
+		/// </param>
 		/// <param name="description">
 		///   'description' String attribute contained in the XML element. Can be null. Can be empty.
 		/// </param>
@@ -288,8 +233,8 @@ namespace BlockEditGen.Parse
 		///   reference.
 		/// </exception>
 		//************************************************************************************************************************
-		public Block(AccessEnum? access, string description, string id, string name, int sizeInBytes, Version version,
-			Conv[] childConvs, Enum[] childEnums, Group[] childGroups, Value[] childValues)
+		public Block(AccessEnum? access, int? addressable, string description, string id, string name, int sizeInBytes,
+			Version version, Conv[] childConvs, Enum[] childEnums, Group[] childGroups, Value[] childValues)
 		{
 			if(id == null)
 				throw new ArgumentNullException("id");
@@ -310,6 +255,7 @@ namespace BlockEditGen.Parse
 			if(childValues == null)
 				throw new ArgumentNullException("childValues");
 			Access = access;
+			Addressable = addressable;
 			Description = description;
 			Id = id;
 			Name = name;
@@ -370,64 +316,52 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
-		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
+		/// <summary>Instantiates a new <see cref="Block"/> empty object.</summary>
 		///
-		/// <param name="stream">Stream containing the XML file data.</param>
+		/// <param name="access">'access' Custom Enumeration attribute contained in the XML element. Can be null.</param>
+		/// <param name="addressable">
+		///   'addressable' 32-bit signed integer attribute contained in the XML element. Can be null.
+		/// </param>
+		/// <param name="description">
+		///   'description' String attribute contained in the XML element. Can be null. Can be empty.
+		/// </param>
+		/// <param name="id">'id' String attribute contained in the XML element.</param>
+		/// <param name="name">'name' String attribute contained in the XML element.</param>
+		/// <param name="sizeInBytes">'size_in_bytes' 32-bit signed integer attribute contained in the XML element.</param>
+		/// <param name="version">'version' Version attribute contained in the XML element.</param>
 		///
-		/// <exception cref="ArgumentException"><paramref name="stream"/> did not contain valid XML.</exception>
-		/// <exception cref="ArgumentNullException"><paramref name="stream"/> is a null reference.</exception>
-		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
-		//************************************************************************************************************************
-		public Block(Stream stream)
-		{
-			if(stream == null)
-				throw new ArgumentNullException("stream");
-
-			ImportFromXML(stream);
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
-		///
-		/// <param name="filePath">Path to the XML file containing the data to be imported.</param>
-		///
-		/// <exception cref="ArgumentException">
-		///   <list type="bullet">
-		///     <listheader>One of the following:</listheader>
-		///     <item><paramref name="filePath"/> is invalid or an error occurred while accessing it.</item>
-		///     <item><paramref name="filePath"/> is an empty array.</item>
-		///   </list>
+		/// <exception cref="ArgumentException"><paramref name="id"/>, or <paramref name="name"/> is an empty array.</exception>
+		/// <exception cref="ArgumentNullException">
+		///   <paramref name="id"/>, <paramref name="name"/>, or <paramref name="version"/> is a null reference.
 		/// </exception>
-		/// <exception cref="ArgumentNullException"><paramref name="filePath"/> is a null reference.</exception>
-		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
 		//************************************************************************************************************************
-		public Block(string filePath)
+		public Block(AccessEnum? access, int? addressable, string description, string id, string name, int sizeInBytes,
+			Version version)
 		{
-			if(filePath == null)
-				throw new ArgumentNullException("filePath");
-			if(filePath.Length == 0)
-				throw new ArgumentException("filePath is empty");
-
-			ImportFromXML(filePath);
-		}
-
-		//************************************************************************************************************************
-		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
-		///
-		/// <param name="reader">TextReader object containing the XML file data.</param>
-		///
-		/// <exception cref="ArgumentException">
-		///   A parsing error occurred while attempting to load the XML from <paramref name="reader"/>.
-		/// </exception>
-		/// <exception cref="ArgumentNullException"><paramref name="reader"/> is a null reference.</exception>
-		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
-		//************************************************************************************************************************
-		public Block(TextReader reader)
-		{
-			if(reader == null)
-				throw new ArgumentNullException("reader");
-
-			ImportFromXML(reader);
+			if(id == null)
+				throw new ArgumentNullException("id");
+			if(id.Length == 0)
+				throw new ArgumentException("id is empty");
+			if(name == null)
+				throw new ArgumentNullException("name");
+			if(name.Length == 0)
+				throw new ArgumentException("name is empty");
+			if(version == null)
+				throw new ArgumentNullException("version");
+			Access = access;
+			Addressable = addressable;
+			Description = description;
+			Id = id;
+			Name = name;
+			SizeInBytes = sizeInBytes;
+			Version = version;
+			ChildConvs = new Conv[0];
+			ChildEnums = new Enum[0];
+			ChildGroups = new Group[0];
+			ChildValues = new Value[0];
+			Ordinal = -1;
+			XmlFileVersion = mDefaultXMLVersion;
+			XmlFileEncoding = mDefaultXMLEncoding;
 		}
 
 		//************************************************************************************************************************
@@ -462,6 +396,67 @@ namespace BlockEditGen.Parse
 		//************************************************************************************************************************
 		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
 		///
+		/// <param name="filePath">Path to the XML file containing the data to be imported.</param>
+		///
+		/// <exception cref="ArgumentException">
+		///   <list type="bullet">
+		///     <listheader>One of the following:</listheader>
+		///     <item><paramref name="filePath"/> is invalid or an error occurred while accessing it.</item>
+		///     <item><paramref name="filePath"/> is an empty array.</item>
+		///   </list>
+		/// </exception>
+		/// <exception cref="ArgumentNullException"><paramref name="filePath"/> is a null reference.</exception>
+		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
+		//************************************************************************************************************************
+		public Block(string filePath)
+		{
+			if(filePath == null)
+				throw new ArgumentNullException("filePath");
+			if(filePath.Length == 0)
+				throw new ArgumentException("filePath is empty");
+
+			ImportFromXML(filePath);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
+		///
+		/// <param name="stream">Stream containing the XML file data.</param>
+		///
+		/// <exception cref="ArgumentException"><paramref name="stream"/> did not contain valid XML.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="stream"/> is a null reference.</exception>
+		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
+		//************************************************************************************************************************
+		public Block(Stream stream)
+		{
+			if(stream == null)
+				throw new ArgumentNullException("stream");
+
+			ImportFromXML(stream);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
+		///
+		/// <param name="reader">TextReader object containing the XML file data.</param>
+		///
+		/// <exception cref="ArgumentException">
+		///   A parsing error occurred while attempting to load the XML from <paramref name="reader"/>.
+		/// </exception>
+		/// <exception cref="ArgumentNullException"><paramref name="reader"/> is a null reference.</exception>
+		/// <exception cref="InvalidDataException">An error occurred while parsing the XML data.</exception>
+		//************************************************************************************************************************
+		public Block(TextReader reader)
+		{
+			if(reader == null)
+				throw new ArgumentNullException("reader");
+
+			ImportFromXML(reader);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Instantiates a new <see cref="Block"/> object from an XML file.</summary>
+		///
 		/// <param name="reader">XmlReader object containing the XML file data.</param>
 		///
 		/// <exception cref="ArgumentException">
@@ -476,6 +471,98 @@ namespace BlockEditGen.Parse
 				throw new ArgumentNullException("reader");
 
 			ImportFromXML(reader);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Conv"/> to <see cref="ChildConvs"/>.</summary>
+		///
+		/// <param name="item"><see cref="Conv"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddConv(Conv item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Conv child in ChildConvs)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Conv>(ChildConvs);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildConvs = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Enum"/> to <see cref="ChildEnums"/>.</summary>
+		///
+		/// <param name="item"><see cref="Enum"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddEnum(Enum item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Enum child in ChildEnums)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Enum>(ChildEnums);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildEnums = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Group"/> to <see cref="ChildGroups"/>.</summary>
+		///
+		/// <param name="item"><see cref="Group"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddGroup(Group item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Group child in ChildGroups)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Group>(ChildGroups);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildGroups = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Value"/> to <see cref="ChildValues"/>.</summary>
+		///
+		/// <param name="item"><see cref="Value"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddValue(Value item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Value child in ChildValues)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Value>(ChildValues);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildValues = list.ToArray();
 		}
 
 		//************************************************************************************************************************
@@ -499,6 +586,11 @@ namespace BlockEditGen.Parse
 			valueString = GetAccessString();
 			if(valueString != null)
 				returnElement.SetAttribute("access", valueString);
+
+			// addressable
+			valueString = GetAddressableString();
+			if(valueString != null)
+				returnElement.SetAttribute("addressable", valueString);
 
 			// description
 			valueString = GetDescriptionString();
@@ -683,6 +775,19 @@ namespace BlockEditGen.Parse
 				default:
 					throw new NotImplementedException("The enumerated type was not recognized as a supported type.");
 			}
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Gets a string representation of Addressable.</summary>
+		///
+		/// <returns>String representing the value. Can be null.</returns>
+		//************************************************************************************************************************
+		public string GetAddressableString()
+		{
+			if(!Addressable.HasValue)
+				return null;
+
+			return Addressable.Value.ToString();
 		}
 
 		//************************************************************************************************************************
@@ -1018,6 +1123,13 @@ namespace BlockEditGen.Parse
 			else
 				SetAccessFromString(attrib.Value);
 
+			// addressable
+			attrib = node.Attributes["addressable"];
+			if(attrib == null)
+				Addressable = null;
+			else
+				SetAddressableFromString(attrib.Value);
+
 			// description
 			attrib = node.Attributes["description"];
 			if(attrib == null)
@@ -1079,6 +1191,62 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Conv"/> from <see cref="ChildConvs"/>.</summary>
+		///
+		/// <param name="item"><see cref="Conv"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveConv(Conv item)
+		{
+			if (item == null) return;
+
+			var list = new List<Conv>(ChildConvs);
+			list.Remove(item);
+			ChildConvs = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Enum"/> from <see cref="ChildEnums"/>.</summary>
+		///
+		/// <param name="item"><see cref="Enum"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveEnum(Enum item)
+		{
+			if (item == null) return;
+
+			var list = new List<Enum>(ChildEnums);
+			list.Remove(item);
+			ChildEnums = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Group"/> from <see cref="ChildGroups"/>.</summary>
+		///
+		/// <param name="item"><see cref="Group"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveGroup(Group item)
+		{
+			if (item == null) return;
+
+			var list = new List<Group>(ChildGroups);
+			list.Remove(item);
+			ChildGroups = list.ToArray();
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Value"/> from <see cref="ChildValues"/>.</summary>
+		///
+		/// <param name="item"><see cref="Value"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveValue(Value item)
+		{
+			if (item == null) return;
+
+			var list = new List<Value>(ChildValues);
+			list.Remove(item);
+			ChildValues = list.ToArray();
+		}
+
+		//************************************************************************************************************************
 		/// <summary>Parses a string value and stores the data in Access.</summary>
 		///
 		/// <param name="value">String representation of the value.</param>
@@ -1117,6 +1285,65 @@ namespace BlockEditGen.Parse
 			}
 			throw new InvalidDataException(string.Format("The enum value specified ({0}) is not a recognized enumerated type for"
 				+ " access.", value));
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Parses a string value and stores the data in Addressable.</summary>
+		///
+		/// <param name="value">String representation of the value.</param>
+		///
+		/// <exception cref="InvalidDataException">
+		///   <list type="bullet">
+		///     <listheader>One of the following:</listheader>
+		///     <item>The string value is an empty string.</item>
+		///     <item>The string value could not be parsed.</item>
+		///   </list>
+		/// </exception>
+		//************************************************************************************************************************
+		public void SetAddressableFromString(string value)
+		{
+			if(value == null)
+			{
+				Addressable = null;
+				return;
+			}
+			if(value.Length == 0)
+				throw new InvalidDataException("The string value for 'addressable' is an empty string.");
+			int returnValue = 0;
+			bool parsed = false;
+			try
+			{
+
+				// Attempt to parse the number as just an integer.
+				returnValue = int.Parse(value, NumberStyles.Integer | NumberStyles.AllowThousands);
+				parsed = true;
+			}
+			catch(FormatException e)
+			{
+				throw new InvalidDataException(string.Format("The int value specified ({0}) is not in a valid int string format:"
+					+ " {1}.", value, e.Message), e);
+			}
+			catch(OverflowException e)
+			{
+				throw new InvalidDataException(string.Format("The int value specified ({0}) was larger or smaller than a int"
+					+ " value (Min: {1}, Max: {2}).", value, int.MinValue.ToString(), int.MaxValue.ToString()), e);
+			}
+
+			if(!parsed)
+				throw new InvalidDataException(string.Format("The int value specified ({0}) is not in a valid int string format.",
+					value));
+
+			// Verify that the int value has not exceeded the maximum size.
+			if(returnValue > 8)
+				throw new InvalidDataException(string.Format("The int value specified ({0}) was larger than the maximum value"
+					+ " allowed for this type (8).", value));
+
+			// Verify that the int value is not lower than the minimum size.
+			if(returnValue < 1)
+				throw new InvalidDataException(string.Format("The int value specified ({0}) was less than the minimum value"
+					+ " allowed for this type (1).", value));
+
+			Addressable = returnValue;
 		}
 
 		//************************************************************************************************************************

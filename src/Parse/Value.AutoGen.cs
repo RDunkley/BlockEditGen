@@ -1,72 +1,9 @@
+// ******************************************************************************************************************************
 // Filename:    Value.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Value (class)           (public, partial)
-//   Enumerations:
-//                 AccessEnum                 (public)
-//                 TypeEnum                   (public)
-//
-//   Properties:
-//                 Access                     (public)
-//                 Addr                       (public)
-//                 Conv                       (public)
-//                 Name                       (public)
-//                 Ordinal                    (public)
-//                 Size                       (public)
-//                 Subtype                    (public)
-//                 Tooltip                    (public)
-//                 Type                       (public)
-//                 Units                      (public)
-//
-//   Methods:
-//                 Value(2)                   (public)
-//                 CreateElement              (public)
-//                 GetAccessString            (public)
-//                 GetAddrString              (public)
-//                 GetConvString              (public)
-//                 GetNameString              (public)
-//                 GetSizeString              (public)
-//                 GetSubtypeString           (public)
-//                 GetTooltipString           (public)
-//                 GetTypeString              (public)
-//                 GetUnitsString             (public)
-//                 ParseXmlNode               (public)
-//                 SetAccessFromString        (public)
-//                 SetAddrFromString          (public)
-//                 SetConvFromString          (public)
-//                 SetNameFromString          (public)
-//                 SetSizeFromString          (public)
-//                 SetSubtypeFromString       (public)
-//                 SetTooltipFromString       (public)
-//                 SetTypeFromString          (public)
-//                 SetUnitsFromString         (public)
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Value.AccessEnum (enum) (public)
-//   Names:
-//                 Read
-//                 ReadWrite
-//                 Write
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Value.TypeEnum (enum)   (public)
-//   Names:
-//                 Bool
-//                 String
-//                 Uint8
-//                 Enum
-//                 Int8
-//                 Int32
-//                 Ip
-//                 Mac
-//                 Double
-//                 Float
-//                 Int16
-//                 Uint16
-//                 Uint32
-//                 Int64
-//                 Uint64
-//********************************************************************************************************************************
+// ******************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.IO;

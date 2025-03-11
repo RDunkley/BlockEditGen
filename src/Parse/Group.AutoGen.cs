@@ -1,21 +1,9 @@
+// ******************************************************************************************************************************
 // Filename:    Group.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Group (class) (public, partial)
-//   Properties:
-//               ChildValues        (public)
-//               Name               (public)
-//               Ordinal            (public)
-//
-//   Methods:
-//               Group(2)           (public)
-//               CreateElement      (public)
-//               GetNameString      (public)
-//               ParseXmlNode       (public)
-//               SetNameFromString  (public)
-//********************************************************************************************************************************
+// ******************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -98,6 +86,25 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
+		/// <summary>Instantiates a new <see cref="Group"/> empty object.</summary>
+		///
+		/// <param name="name">'name' String attribute contained in the XML element.</param>
+		///
+		/// <exception cref="ArgumentException"><paramref name="name"/> is an empty array.</exception>
+		/// <exception cref="ArgumentNullException"><paramref name="name"/> is a null reference.</exception>
+		//************************************************************************************************************************
+		public Group(string name)
+		{
+			if(name == null)
+				throw new ArgumentNullException("name");
+			if(name.Length == 0)
+				throw new ArgumentException("name is empty");
+			Name = name;
+			ChildValues = new Value[0];
+			Ordinal = -1;
+		}
+
+		//************************************************************************************************************************
 		/// <summary>Instantiates a new <see cref="Group"/> object from an <see cref="XmlNode"/> object.</summary>
 		///
 		/// <param name="node"><see cref="XmlNode"/> containing the data to extract.</param>
@@ -122,6 +129,29 @@ namespace BlockEditGen.Parse
 				throw new ArgumentException("node is not of type 'Element'.");
 
 			ParseXmlNode(node, ordinal);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Value"/> to <see cref="ChildValues"/>.</summary>
+		///
+		/// <param name="item"><see cref="Value"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddValue(Value item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Value child in ChildValues)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Value>(ChildValues);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildValues = list.ToArray();
 		}
 
 		//************************************************************************************************************************
@@ -216,6 +246,20 @@ namespace BlockEditGen.Parse
 			ChildValues = childValuesList.ToArray();
 
 			Ordinal = ordinal;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Value"/> from <see cref="ChildValues"/>.</summary>
+		///
+		/// <param name="item"><see cref="Value"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveValue(Value item)
+		{
+			if (item == null) return;
+
+			var list = new List<Value>(ChildValues);
+			list.Remove(item);
+			ChildValues = list.ToArray();
 		}
 
 		//************************************************************************************************************************

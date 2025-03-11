@@ -1,37 +1,9 @@
+// ******************************************************************************************************************************
 // Filename:    Item.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Item (class)                   (public, partial)
-//   Enumerations:
-//                 ValueIntegerFormat                (public)
-//
-//   Properties:
-//                 Name                              (public)
-//                 Ordinal                           (public)
-//                 Tooltip                           (public)
-//                 Value                             (public)
-//                 ValueFormat                       (public)
-//
-//   Methods:
-//                 Item(2)                           (public)
-//                 CreateElement                     (public)
-//                 GetNameString                     (public)
-//                 GetTooltipString                  (public)
-//                 GetValueString                    (public)
-//                 ParseXmlNode                      (public)
-//                 SetNameFromString                 (public)
-//                 SetTooltipFromString              (public)
-//                 SetValueFromString                (public)
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Item.ValueIntegerFormat (enum) (public)
-//   Names:
-//                 HexType1
-//                 HexType2
-//                 Binary
-//                 Integer
-//********************************************************************************************************************************
+// ******************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.Globalization;

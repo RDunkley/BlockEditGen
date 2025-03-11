@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" ?>
-<block version="1.0.0.0" size_in_bytes="4096" access="RW" id="Clock1" name="Clock 1" description="Register block for clock 1.">
+<block version="1.0.0.0" size_in_bytes="4096" addressable="4" access="RW" id="Clock1" name="Clock 1" description="Register block for clock 1.">
 	<enum width="0.8" id="ClockAttributes" >
 		<item value="0x0" name="Single Bit" tooltip="Clock is a single bit." />
 		<item value="0x1" name="Differential" tooltip="Clock is a differential pair." />

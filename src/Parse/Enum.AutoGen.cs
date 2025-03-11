@@ -1,24 +1,9 @@
+// ******************************************************************************************************************************
 // Filename:    Enum.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Enum (class)  (public, partial)
-//   Properties:
-//               ChildItems         (public)
-//               Id                 (public)
-//               Ordinal            (public)
-//               Width              (public)
-//
-//   Methods:
-//               Enum(2)            (public)
-//               CreateElement      (public)
-//               GetIdString        (public)
-//               GetWidthString     (public)
-//               ParseXmlNode       (public)
-//               SetIdFromString    (public)
-//               SetWidthFromString (public)
-//********************************************************************************************************************************
+// ******************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -114,6 +99,33 @@ namespace BlockEditGen.Parse
 		}
 
 		//************************************************************************************************************************
+		/// <summary>Instantiates a new <see cref="Enum"/> empty object.</summary>
+		///
+		/// <param name="id">'id' String attribute contained in the XML element.</param>
+		/// <param name="width">'width' String attribute contained in the XML element.</param>
+		///
+		/// <exception cref="ArgumentException"><paramref name="id"/>, or <paramref name="width"/> is an empty array.</exception>
+		/// <exception cref="ArgumentNullException">
+		///   <paramref name="id"/>, or <paramref name="width"/> is a null reference.
+		/// </exception>
+		//************************************************************************************************************************
+		public Enum(string id, string width)
+		{
+			if(id == null)
+				throw new ArgumentNullException("id");
+			if(id.Length == 0)
+				throw new ArgumentException("id is empty");
+			if(width == null)
+				throw new ArgumentNullException("width");
+			if(width.Length == 0)
+				throw new ArgumentException("width is empty");
+			Id = id;
+			Width = width;
+			ChildItems = new Item[0];
+			Ordinal = -1;
+		}
+
+		//************************************************************************************************************************
 		/// <summary>Instantiates a new <see cref="Enum"/> object from an <see cref="XmlNode"/> object.</summary>
 		///
 		/// <param name="node"><see cref="XmlNode"/> containing the data to extract.</param>
@@ -138,6 +150,29 @@ namespace BlockEditGen.Parse
 				throw new ArgumentException("node is not of type 'Element'.");
 
 			ParseXmlNode(node, ordinal);
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Adds a <see cref="Item"/> to <see cref="ChildItems"/>.</summary>
+		///
+		/// <param name="item"><see cref="Item"/> to be added. If null, then no changes will occur. Can be null.</param>
+		//************************************************************************************************************************
+		public void AddItem(Item item)
+		{
+			if (item == null) return;
+
+			// Compute the maximum index used on any child items.
+			int maxIndex = 0;
+			foreach(Item child in ChildItems)
+			{
+				if (child.Ordinal >= maxIndex)
+					maxIndex = child.Ordinal + 1; // Set to first index after this index.
+			}
+
+			var list = new List<Item>(ChildItems);
+			list.Add(item);
+			item.Ordinal = maxIndex;
+			ChildItems = list.ToArray();
 		}
 
 		//************************************************************************************************************************
@@ -253,6 +288,20 @@ namespace BlockEditGen.Parse
 			ChildItems = childItemsList.ToArray();
 
 			Ordinal = ordinal;
+		}
+
+		//************************************************************************************************************************
+		/// <summary>Removes a <see cref="Item"/> from <see cref="ChildItems"/>.</summary>
+		///
+		/// <param name="item"><see cref="Item"/> to be removed. Can be null.</param>
+		//************************************************************************************************************************
+		public void RemoveItem(Item item)
+		{
+			if (item == null) return;
+
+			var list = new List<Item>(ChildItems);
+			list.Remove(item);
+			ChildItems = list.ToArray();
 		}
 
 		//************************************************************************************************************************
