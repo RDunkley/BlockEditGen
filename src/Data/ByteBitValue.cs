@@ -21,21 +21,54 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 // ******************************************************************************************************************************
-using System;
 using System.Globalization;
 
 namespace BlockEditGen.Data
 {
+	/// <summary>
+	///   Contains a numeric value representing a number of bytes and a number of bits.
+	/// </summary>
 	public class ByteBitValue
 	{
+		#region Properties
+
+		/// <summary>
+		///   Number of bytes in the value.
+		/// </summary>
 		public int Bytes { get; private set; }
+
+		/// <summary>
+		///   Number of bits in the value (in addition to the bytes). Only 0-7.
+		/// </summary>
 		public int Bits { get; private set; }
 
+		/// <summary>
+		///   Total number of bits in the value.
+		/// </summary>
 		public int TotalBits { get; private set; }
 
-		public ByteBitValue(string value)
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		///   Generates a <see cref="ByteBitValue"/> object from the provided string.
+		/// </summary>
+		/// <param name="value">
+		///   String value containing the byte/word size and number of bits separated by a period. The first value can be hexadecimal or integer. The number of bits is optional.
+		///   If a second is provided it is separated by a period and the second value represents the number of bits.
+		/// </param>
+		/// <param name="addressMultiplier">
+		///   If an address multiplier is provided (other than 1) then the first number that is provided in <paramref name="value"/> will be multiplied by this value. This enables
+		///   the use of addresses that are word addressable to be provided and internally are converted to bytes.
+		/// </param>
+		/// <exception cref="ArgumentNullException"><paramref name="value"/> is null.</exception>
+		/// <exception cref="ArgumentException"><paramref name="addressMultiplier"/> is not 1, 2, 4, or 8 or <paramref name="value"/> could not be parsed.</exception>
+		public ByteBitValue(string value, int addressMultiplier = 1)
 		{
 			if (value == null) throw new ArgumentNullException(nameof(value));
+			if (addressMultiplier != 1 && addressMultiplier != 2 && addressMultiplier != 4 && addressMultiplier != 8)
+				throw new ArgumentException($"The provided address multiplier ({addressMultiplier}) is not 1, 2, 4, or 8");
 
 			if (value.Contains('.'))
 			{
@@ -46,6 +79,11 @@ namespace BlockEditGen.Data
 					throw new ArgumentException($"The value string ({value}) bytes portion ({splits[0]}) could not be parsed as such.");
 				if (!TryParseValue(splits[1], out uint bits))
 					throw new ArgumentException($"The value string ({value}) bits portion ({splits[1]}) could not be parsed as such.");
+
+				// If an address multiplier other than 1 is provided, then it is assumed the number preceeding the period is a word address value so we need
+				// to convert it to bytes.
+				if (addressMultiplier != 1)
+					bytes = (uint)(bytes * addressMultiplier);
 
 				Bits = (byte)(bits % 8);
 				var temp = bytes + bits / 8;
@@ -61,6 +99,14 @@ namespace BlockEditGen.Data
 				if (allBytes > int.MaxValue)
 					throw new ArgumentException($"The value string ({value}) was parsed to a byte value ({allBytes:N0}) larger than allowed ({int.MaxValue:N0}).");
 				Bits = 0;
+
+				// If an address multiplier other than 1 is provided, then it is assumed the number preceeding the period is a word address value so we need
+				// to convert it to bytes.
+				if (addressMultiplier != 1)
+					allBytes = (uint)(allBytes * addressMultiplier);
+
+				if (allBytes > int.MaxValue)
+					throw new ArgumentException($"The value string ({value}) was parsed to a byte value ({allBytes:N0}) larger than allowed ({int.MaxValue:N0}).");
 				Bytes = (int)allBytes;
 			}
 
@@ -71,6 +117,12 @@ namespace BlockEditGen.Data
 			TotalBits = (int)sizeInBits;
 		}
 
+		/// <summary>
+		///   Creates a new <see cref="ByteBitValue"/> object from specified bytes and bits.
+		/// </summary>
+		/// <param name="bytes">Number of bytes in the value.</param>
+		/// <param name="bits">Number of bits in the value in addition to the <paramref name="bytes"/>.</param>
+		/// <exception cref="ArgumentException"><paramref name="bits"/> or <paramref name="bytes"/> is less than 0 or larger than the maximum allowed.</exception>
 		public ByteBitValue(int bytes, int bits)
 		{
 			if (bytes < 0) throw new ArgumentException($"The number of bytes ({bytes}) is less than 0.");
@@ -239,5 +291,7 @@ namespace BlockEditGen.Data
 		{
 			return base.GetHashCode();
 		}
+
+		#endregion
 	}
 }

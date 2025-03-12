@@ -22,18 +22,34 @@
 // SOFTWARE.
 // ******************************************************************************************************************************
 using BlockEditGen.Data;
-using System;
 
 namespace BlockEditGen.Parse
 {
+	/// <summary>
+	///   Partial <see cref="Value"/> class to include custom code.
+	/// </summary>
 	public partial class Value
 	{
+		#region Properties
+
+		/// <summary>
+		///   Parent block the value is contained in.
+		/// </summary>
 		public Block ParentBlock { get; private set; }
 
+		/// <summary>
+		///   Address of the value in the block.
+		/// </summary>
 		public ByteBitValue Address { get; private set; }
 
+		/// <summary>
+		///   Length of the value.
+		/// </summary>
 		public ByteBitValue Length { get; private set; }
 
+		/// <summary>
+		///   Conversion to use when reading/writing from/to the register.
+		/// </summary>
 		public Conv Conversion
 		{
 			get
@@ -44,6 +60,9 @@ namespace BlockEditGen.Parse
 			}
 		}
 
+		/// <summary>
+		///   Accessibility of the value.
+		/// </summary>
 		public AccessType Accessibility
 		{
 			get
@@ -59,13 +78,23 @@ namespace BlockEditGen.Parse
 			}
 		}
 
+		#endregion
+
+		#region Methods
+
+		/// <summary>
+		///   Initializes the value's custom code.
+		/// </summary>
+		/// <param name="parent">Parent block the value belongs to (even if under a group).</param>
+		/// <exception cref="ArgumentNullException"><paramref name="parent"/> is null.</exception>
+		/// <exception cref="InvalidOperationException">Unable to initialize the value.</exception>
 		public void Initialize(Block parent)
 		{
 			if(parent == null) throw new ArgumentNullException(nameof(parent));
 
 			ParentBlock = parent;
-			Address = new ByteBitValue(Addr);
 			Length = new ByteBitValue(Size);
+			Address = new ByteBitValue(Addr, parent.Addressable.Value);
 
 			if (Length.TotalBits == 0)
 				throw new InvalidOperationException($"The value ({Name}) has a length of zero.");
@@ -105,5 +134,7 @@ namespace BlockEditGen.Parse
 					throw new InvalidOperationException($"The value ({Name}) points to an enumeration type ({Subtype}), but the length of the value does not match the enum type length.");
 			}
 		}
+
+		#endregion
 	}
 }

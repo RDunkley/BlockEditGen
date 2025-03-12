@@ -1,42 +1,9 @@
+// ******************************************************************************************************************************
 // Filename:    Conv.AutoGen.cs
 // Owner:       Richard Dunkley
-// Description:
 // Generated using XMLToDataClass version 1.1.0 with CSCodeGen.dll version 1.0.0.
 // Copyright © Richard Dunkley 2024
-// BlockEditGen.Parse.Conv (class)                  (public, partial)
-//   Enumerations:
-//                 GainFloatFormat                  (public)
-//                 OffsetFloatFormat                (public)
-//
-//   Properties:
-//                 Gain                             (public)
-//                 GainFormat                       (public)
-//                 Id                               (public)
-//                 Offset                           (public)
-//                 OffsetFormat                     (public)
-//                 Ordinal                          (public)
-//
-//   Methods:
-//                 Conv(2)                          (public)
-//                 CreateElement                    (public)
-//                 GetGainString                    (public)
-//                 GetIdString                      (public)
-//                 GetOffsetString                  (public)
-//                 ParseXmlNode                     (public)
-//                 SetGainFromString                (public)
-//                 SetIdFromString                  (public)
-//                 SetOffsetFromString              (public)
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Conv.GainFloatFormat (enum)   (public)
-//   Names:
-//                 Exponent
-//                 Decimal
-//********************************************************************************************************************************
-// BlockEditGen.Parse.Conv.OffsetFloatFormat (enum) (public)
-//   Names:
-//                 Exponent
-//                 Decimal
-//********************************************************************************************************************************
+// ******************************************************************************************************************************
 using System;
 using System.Collections.Generic;
 using System.Globalization;
