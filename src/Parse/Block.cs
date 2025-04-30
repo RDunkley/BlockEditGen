@@ -105,7 +105,7 @@ namespace BlockEditGen.Parse
 				group.Initialize(this);
 
 			// Check for value overlap and find max.
-			ByteBitValue maxEndValue = new ByteBitValue(0, 0);
+			ByteBitValue finalSize = new ByteBitValue(0, 0);
 			for(int i = 0; i < ChildValues.Length; i++)
 			{
 				var val =  ChildValues[i];
@@ -119,12 +119,12 @@ namespace BlockEditGen.Parse
 					}
 				}
 
-				if(end > maxEndValue)
-					maxEndValue = end;
+				if(end > finalSize)
+					finalSize = end;
 			}
 
-			if (maxEndValue >= SizeInBytes)
-				throw new InvalidOperationException($"The end address ({maxEndValue.ToString()}) in one of the values is larger than the size of the block ({SizeInBytes}).");
+			if (finalSize > SizeInBytes)
+				throw new InvalidOperationException($"The final size ({finalSize.ToString()}) plus the offset in one of the values is larger than the size of the block ({SizeInBytes}).");
 
 			if (Addressable != 1 && Addressable != 2 && Addressable != 4 && Addressable != 8)
 				throw new InvalidOperationException($"The Addressable word size is {Addressable}, but only 1, 2, 4, and 8 are allowed.");

@@ -183,27 +183,12 @@ namespace BlockEditGen.Data
 				addr.AddBits(numBitsToRead);
 				read.AddBits(numBitsToRead);
 			}
-
-			/*var read = new ByteBitValue(0);
-			var srcBitIndex = address.Bits;
-			var dstBitIndex = 0;
-			while(read.TotalBits < length.TotalBits)
-			{
-				int numBitsToRead = 8 - srcBitIndex; // Amount left in the source byte.
-				if (numBitsToRead > (8 - dstBitIndex)) // Reduce to amount left in destination byte.
-					numBitsToRead = 8 - dstBitIndex;
-				if (numBitsToRead > (length.TotalBits - read.TotalBits)) // Reduce to number of bits left.
-					numBitsToRead = (int)(length.TotalBits - read.TotalBits);
-
-				dst[read.Bytes] |= (byte)(((_cache.Span[(address + read).Bytes] >> srcBitIndex) & GetBitMask(numBitsToRead)) << dstBitIndex);
-				dstBitIndex += numBitsToRead;
-				dstBitIndex %= 8;
-				srcBitIndex += numBitsToRead;
-				srcBitIndex %= 8;
-				read.AddBits(numBitsToRead);
-			}*/
 		}
 
+		/// <summary>
+		///   Updates the state of the byte based on if the cache is the same as the previous value.
+		/// </summary>
+		/// <param name="byteAddress">Byte address to be updated.</param>
 		private void UpdateState(int byteAddress)
 		{
 			// Check what the state should now be.
@@ -223,6 +208,10 @@ namespace BlockEditGen.Data
 			_state.Span[byteAddress] = state;
 		}
 
+		/// <summary>
+		///   Updates the change counter so that we track how many changes in the block.
+		/// </summary>
+		/// <param name="increment"></param>
 		private void UpdateChangeCounter(bool increment)
 		{
 			var current = _changeCounter;
@@ -294,30 +283,6 @@ namespace BlockEditGen.Data
 				written.AddBits(numBitsToWrite);
 			}
 			OnCacheChanged();
-
-			/*var written = new ByteBitValue(0);
-			var srcBitIndex = 0;
-			var dstBitIndex = address.Bits;
-			while (written.TotalBits < length.TotalBits)
-			{
-				int numBitsToWrite = 8 - srcBitIndex; // Amount left in the source byte.
-				if (numBitsToWrite > (8 - dstBitIndex)) // Reduce to amount left in destination byte.
-					numBitsToWrite = 8 - dstBitIndex;
-				if (numBitsToWrite > (length.TotalBits - written.TotalBits)) // Reduce to number of bits left.
-					numBitsToWrite = (int)(length.TotalBits - written.TotalBits);
-
-				var mask = GetBitMask(numBitsToWrite) << dstBitIndex;
-				_cache.Span[address.Bytes + written.Bytes] &= (byte)~mask; // Clear the bits we are going to overwrite.
-				_cache.Span[address.Bytes + written.Bytes] |= (byte)(((src[written.Bytes] >> srcBitIndex) << dstBitIndex) & mask);
-				UpdateState (address.Bytes + written.Bytes);
-
-				dstBitIndex += numBitsToWrite;
-				dstBitIndex %= 8;
-				srcBitIndex += numBitsToWrite;
-				srcBitIndex %= 8;
-				written.AddBits(numBitsToWrite);
-			}
-			OnCacheChanged();*/
 		}
 
 		/// <summary>
@@ -400,6 +365,11 @@ namespace BlockEditGen.Data
 			return DataControlState.Default;
 		}
 
+		/// <summary>
+		///   Gets the state of the register.
+		/// </summary>
+		/// <param name="regAddress">Address of the register. Based on the addressability of the register block.</param>
+		/// <returns><see cref="DataControlState"/> of the register.</returns>
 		private DataControlState GetRegState(int regAddress)
 		{
 			bool modified = false;
@@ -421,6 +391,11 @@ namespace BlockEditGen.Data
 			return DataControlState.Default;
 		}
 
+		/// <summary>
+		///   Clears the state of the block of bytes.
+		/// </summary>
+		/// <param name="startByte">Byte index to start clearing.</param>
+		/// <param name="byteCount">Number of bytes to clear.</param>
 		private void ClearRegState(int startByte, int byteCount)
 		{
 			for(int i = 0; i < byteCount; i++)
@@ -433,8 +408,10 @@ namespace BlockEditGen.Data
 		}
 
 		/// <summary>
-		/// 
+		///   Instructs this object to pull all the values from the underlying register block and overwrite any values in the cache.
 		/// </summary>
+		/// <remarks>Any bytes that have changed from the last time the registers were pulled will be marked as <see cref="DataControlState.Updated"/>.</remarks>
+		/// <exception cref="IOException">An error occurred while accessing the underlying register block.</exception>
 		public async Task UpdateValuesFromRegisterBlockAsync()
 		{
 			// Write the new values to cache.
@@ -460,6 +437,14 @@ namespace BlockEditGen.Data
 			OnPropertyChanged(nameof(HasChanges));
 		}
 
+		/// <summary>
+		///   Instructs this object to push all the changed values from the cache to the underlying register block.
+		/// </summary>
+		/// <remarks>
+		///   Any bytes that are currently in the <see cref="DataControlState.Modified"/> state will get pushed and change to a <see cref="DataControlState.Default"/> state.
+		///   Bytes in an <see cref="DataControlState.Error"/> state are ignored.
+		/// </remarks>
+		/// <exception cref="IOException">An error occurred while accessing the underlying register block.</exception>
 		public async Task PushChangedValuesToRegisterBlockAsync()
 		{
 			// Write the modified values to the register block.

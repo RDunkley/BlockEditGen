@@ -29,5 +29,4 @@
 	<value addr="0x48" size="4" access="R" type="int32" subtype="le" units="l" conv="Conv1" name="Computation 4" tooltip="Computation 4." />
 	<value addr="0x4C" size="0.3" type="enum" subtype="PllType" name="PLL" tooltip="PLL Description" />
 	<value addr="0x4C.7" size="0.1" access="R" type="bool" subtype="Low,High" name="Single Bool Line" tooltip="Single Bool Line descrption" />
-	
 </block>
