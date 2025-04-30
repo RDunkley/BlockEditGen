@@ -73,6 +73,7 @@ namespace BlockEditGen.Interfaces
 		///   Instructs this object to pull all the values from the underlying register block and overwrite any values in the cache.
 		/// </summary>
 		/// <remarks>Any bytes that have changed from the last time the registers were pulled will be marked as <see cref="DataControlState.Updated"/>.</remarks>
+		/// <exception cref="IOException">An error occurred while accessing the underlying register block.</exception>
 		Task UpdateValuesFromRegisterBlockAsync();
 
 		/// <summary>
@@ -82,6 +83,7 @@ namespace BlockEditGen.Interfaces
 		///   Any bytes that are currently in the <see cref="DataControlState.Modified"/> state will get pushed and change to a <see cref="DataControlState.Default"/> state.
 		///   Bytes in an <see cref="DataControlState.Error"/> state are ignored.
 		/// </remarks>
+		/// <exception cref="IOException">An error occurred while accessing the underlying register block.</exception>
 		Task PushChangedValuesToRegisterBlockAsync();
 	}
 }
