@@ -78,7 +78,8 @@ namespace BlockEditGen
 					// Place a group with all it's values.
 					var groupBox = new HeaderedContentControl
 					{
-						Header = group.Name,
+						//Header = group.Name,
+						Header = new TextBlock { Text = group.Name },
 						//Background = new SolidColorBrush(Colors.Black),
 						Padding = new Thickness(10),
 						Margin = new Thickness(10),
