@@ -41,9 +41,24 @@ namespace BlockEditGen.ViewModels
 		public int FontSize { get { return PanelFactory.FontSize; } }
 		public FontFamily FontFamily { get { return PanelFactory.FontFamily; } }
 
+		/// <summary>
+		///   Minimum height given to the interactive part of a value (text box, combo box, toggle). Read-only values are
+		///   drawn as plain text, which is shorter, so this is what the two are levelled to.
+		/// </summary>
+		public int RowHeight { get { return GetRowHeight(FontSize); } }
+
+		/// <summary>
+		///   Minimum height of a whole value row, being <see cref="RowHeight"/> plus the margin applied to the row's
+		///   contents. Applying this to the row lets every child centre itself and keeps read-only and editable rows the
+		///   same height.
+		/// </summary>
+		public int RowMinHeight { get { return RowHeight + (int)(Margin.Top + Margin.Bottom); } }
+
+		internal static int GetRowHeight(int fontSize) => fontSize + 14;
+
 		public int LengthInBytes { get; protected set; }
 
-		public static Thickness Margin { get; set; } = new Thickness(5, 5, 5, 5);
+		public static Thickness Margin { get; set; } = new Thickness(5, 1, 5, 1);
 
 		public string Name { get { return _value.Name; } }
 		public string Description { get { return _value.Tooltip; } }

@@ -133,6 +133,24 @@ namespace BlockEditGen.Parse
 				if(Length != parent.EnumLookup[Subtype].Length)
 					throw new InvalidOperationException($"The value ({Name}) points to an enumeration type ({Subtype}), but the length of the value does not match the enum type length.");
 			}
+
+			if (Type == TypeEnum.Array)
+			{
+				if (!ArrayElementTypeExtensions.TryParse(Subtype, out var elementType))
+					throw new InvalidOperationException($"The value ({Name}) is an array type, but the subtype ({Subtype}) is not a supported element type (must be byte, ushort, uint, or ulong).");
+
+				if (Length.Bits != 0)
+					throw new InvalidOperationException($"The value ({Name}) is an array type, but the size must be byte-aligned.");
+
+				if (Length.Bytes % elementType.SizeInBytes() != 0)
+					throw new InvalidOperationException($"The value ({Name}) is an array type, but the size ({Length.Bytes} bytes) is not a multiple of the element size ({elementType.SizeInBytes()} bytes).");
+
+				if (Units != null)
+					throw new InvalidOperationException($"The value ({Name}) is an array type, but units are not supported.");
+
+				if (Conv != null)
+					throw new InvalidOperationException($"The value ({Name}) is an array type, but conversion options are not supported.");
+			}
 		}
 
 		#endregion

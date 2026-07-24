@@ -44,6 +44,12 @@ namespace BlockEditGen.Data
 		private uint _changeCounter = 0;
 
 		/// <summary>
+		///   Set once the first pull from the underlying register block has completed. Until then there is no previous pull to
+		///   compare against, so the initial values form the baseline rather than being reported as updated.
+		/// </summary>
+		private bool _hasPulledValues = false;
+
+		/// <summary>
 		///   The maximum size of block in bytes.
 		/// </summary>
 		private const int _maxArraySize = 1024 * 1024;
@@ -338,25 +344,24 @@ namespace BlockEditGen.Data
 			}
 
 			// Check over in bits (this is much slower).
+			var addr = new ByteBitValue(address.TotalBits);
 			var checkedBits = new ByteBitValue(0);
-			var bitIndex = address.Bits;
 			while (checkedBits.TotalBits < length.TotalBits)
 			{
-				int numBitsToCheck = 8 - bitIndex; // Amount left in the current byte.
-				if (numBitsToCheck > (length.TotalBits - checkedBits.TotalBits)) // Reduce to number of bits left.
+				int numBitsToCheck = 8 - addr.Bits;
+				if (numBitsToCheck > (length.TotalBits - checkedBits.TotalBits))
 					numBitsToCheck = (int)(length.TotalBits - checkedBits.TotalBits);
 
-				var mask = GetBitMask(numBitsToCheck) << bitIndex;
-				byte cacheByte = (byte)(_cache.Span[address.Bytes + checkedBits.Bytes] & mask);
-				byte prevByte = (byte)(_prev.Span[address.Bytes + checkedBits.Bytes] & mask);
+				var mask = GetBitMask(numBitsToCheck) << addr.Bits;
+				byte cacheByte = (byte)(_cache.Span[addr.Bytes] & mask);
+				byte prevByte = (byte)(_prev.Span[addr.Bytes] & mask);
 				if (cacheByte != prevByte)
 				{
 					modified = true;
 					break;
 				}
 
-				bitIndex += numBitsToCheck;
-				bitIndex %= 8;
+				addr.AddBits(numBitsToCheck);
 				checkedBits.AddBits(numBitsToCheck);
 			}
 
@@ -423,11 +428,12 @@ namespace BlockEditGen.Data
 			// Check what values have changes since the last push.
 			for(int i = 0; i < _cache.Length; i++)
 			{
-				if (_cache.Span[i] != _prev.Span[i])
+				if (_hasPulledValues && _cache.Span[i] != _prev.Span[i])
 					_state.Span[i] = DataControlState.Updated;
 				else
 					_state.Span[i] = DataControlState.Default;
 			}
+			_hasPulledValues = true;
 
 			// Update the previous values.
 			_cache.Span.CopyTo(_prev.Span);

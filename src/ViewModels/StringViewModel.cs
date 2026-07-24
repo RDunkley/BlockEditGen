@@ -75,7 +75,7 @@ namespace BlockEditGen.ViewModels
 
 		protected override string GetString()
 		{
-			var buf = new byte[_value.Length.Bytes];
+			var buf = new byte[LengthInBytes];
 			_block.ReadSection(_value.Address, _value.Length, buf);
 			var fullString = Encoding.GetString(buf);
 
@@ -94,7 +94,7 @@ namespace BlockEditGen.ViewModels
 			if (value == null) return false;
 			if (value.Length > MaxNumCharacters) return false;
 
-			var buf = new byte[_value.Length.Bytes];
+			var buf = new byte[LengthInBytes];
 			Encoding.GetBytes(value, 0, value.Length, buf, 0);
 			_block.WriteSection(_value.Address, _value.Length, buf);
 			return true;

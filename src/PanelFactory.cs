@@ -40,6 +40,11 @@ namespace BlockEditGen
 
 		public static FontFamily FontFamily { get; set; } = new FontFamily("Arial");
 
+		/// <summary>
+		///   Font used by the hex editor. Must be monospaced, as the column widths are derived from the character width.
+		/// </summary>
+		public static FontFamily HexFontFamily { get; set; } = new FontFamily("Consolas");
+
 		public static void PopulatePanel(ICachedRegisterBlock block, string xmlPath, Panel panel)
 		{
 			var pBlock = new Block(xmlPath);
@@ -51,16 +56,22 @@ namespace BlockEditGen
 		public static void PopulatePanel(ICachedRegisterBlock block, Block pBlock, Panel panel)
 		{
 			panel.Children.Clear();
+			// Horizontal scrolling is disabled so the controls are measured against the viewport width. Without this the
+			// content is measured with an unbounded width and nothing that stretches (such as the hex editor) can size
+			// itself to the window.
 			var sv = new ScrollViewer
 			{
-				HorizontalScrollBarVisibility = ScrollBarVisibility.Visible,
+				HorizontalScrollBarVisibility = ScrollBarVisibility.Disabled,
+				VerticalScrollBarVisibility = ScrollBarVisibility.Auto,
+				HorizontalAlignment = HorizontalAlignment.Stretch,
+				VerticalAlignment = VerticalAlignment.Stretch,
 			};
 
 			var stackPanel = new StackPanel
 			{
 				HorizontalAlignment = HorizontalAlignment.Stretch,
 				Orientation = Orientation.Vertical,
-				Margin = new Thickness(20, 20, 20, 20),
+				Margin = new Thickness(10, 8, 10, 8),
 			};
 			sv.Content = stackPanel;
 			panel.Children.Add(sv);
@@ -81,8 +92,8 @@ namespace BlockEditGen
 						//Header = group.Name,
 						Header = new TextBlock { Text = group.Name },
 						//Background = new SolidColorBrush(Colors.Black),
-						Padding = new Thickness(10),
-						Margin = new Thickness(10),
+						Padding = new Thickness(6),
+						Margin = new Thickness(0, 4, 0, 4),
 						BorderThickness = new Thickness(2),
 						Content = new Border
 						{
@@ -94,7 +105,7 @@ namespace BlockEditGen
 								HorizontalAlignment = HorizontalAlignment.Stretch,
 								VerticalAlignment = VerticalAlignment.Stretch,
 								Orientation = Orientation.Vertical,
-								Margin = new Thickness(5, 5, 5, 5),
+								Margin = new Thickness(4, 2, 4, 2),
 							}
 						}
 					};
@@ -223,6 +234,12 @@ namespace BlockEditGen
 					newControl = new StringBasedUserControl
 					{
 						DataContext = new UInt64ViewModel(value, block),
+						NameWidth = nameWidth,
+					}; break;
+				case Value.TypeEnum.Array:
+					newControl = new HexEditorUserControl
+					{
+						DataContext = new ArrayViewModel(value, block),
 						NameWidth = nameWidth,
 					}; break;
 				default:
