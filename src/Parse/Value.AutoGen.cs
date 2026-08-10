@@ -128,6 +128,11 @@ namespace BlockEditGen.Parse
 			//********************************************************************************************************************
 			Uint64,
 
+			//********************************************************************************************************************
+			/// <summary>Represents the 'array' string.</summary>
+			//********************************************************************************************************************
+			Array,
+
 			#endregion Names
 		}
 
@@ -462,6 +467,8 @@ namespace BlockEditGen.Parse
 					return "int64";
 				case TypeEnum.Uint64:
 					return "uint64";
+				case TypeEnum.Array:
+					return "array";
 				default:
 					throw new NotImplementedException("The enumerated type was not recognized as a supported type.");
 			}
@@ -821,6 +828,11 @@ namespace BlockEditGen.Parse
 			if(string.Compare(value, "uint64", false) == 0)
 			{
 				Type = TypeEnum.Uint64;
+				return;
+			}
+			if(string.Compare(value, "array", false) == 0)
+			{
+				Type = TypeEnum.Array;
 				return;
 			}
 			throw new InvalidDataException(string.Format("The enum value specified ({0}) is not a recognized enumerated type for"

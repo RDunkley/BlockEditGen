@@ -29,4 +29,11 @@
 	<value addr="0x48" size="4" access="R" type="int32" subtype="le" units="l" conv="Conv1" name="Computation 4" tooltip="Computation 4." />
 	<value addr="0x4C" size="0.3" type="enum" subtype="PllType" name="PLL" tooltip="PLL Description" />
 	<value addr="0x4C.7" size="0.1" access="R" type="bool" subtype="Low,High" name="Single Bool Line" tooltip="Single Bool Line descrption" />
+	<group name="Array Examples" >
+		<value addr="0x50" size="16" access="R" type="array" subtype="byte" name="Byte Array (Read-Only)" tooltip="Read-only array of 16 bytes displayed in a hex editor." />
+		<value addr="0x54" size="32" type="array" subtype="byte" name="Byte Array (Read/Write)" tooltip="Editable array of 32 bytes displayed in a hex editor." />
+		<value addr="0x5C" size="16" type="array" subtype="ushort" name="UShort Array" tooltip="Editable array of eight 16-bit unsigned integers (16 bytes)." />
+		<value addr="0x60" size="16" type="array" subtype="uint" name="UInt Array" tooltip="Editable array of four 32-bit unsigned integers (16 bytes)." />
+		<value addr="0x64" size="16" access="R" type="array" subtype="ulong" name="ULong Array (Read-Only)" tooltip="Read-only array of two 64-bit unsigned integers (16 bytes)." />
+	</group>
 </block>

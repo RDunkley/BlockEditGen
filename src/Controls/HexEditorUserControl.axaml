@@ -1,0 +1,136 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+			 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+			 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+			 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 xmlns:vm="using:BlockEditGen.ViewModels"
+			 xmlns:conv="using:BlockEditGen.Converters"
+			 mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="120"
+			 x:Class="BlockEditGen.Controls.HexEditorUserControl"
+			 x:DataType="vm:ArrayViewModel"
+			 HorizontalAlignment="Stretch"
+			 VerticalAlignment="Stretch">
+	<Design.DataContext>
+		<vm:ArrayViewModel/>
+	</Design.DataContext>
+	<UserControl.Resources>
+		<conv:DataControlStateToBackgroundColorConverter x:Key="stateConverter" />
+	</UserControl.Resources>
+	<Grid
+		Margin="5 0 5 0"
+		ColumnDefinitions="Auto,*"
+		Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}"
+		ToolTip.Tip="{Binding Description, Mode=OneWay}">
+		<TextBlock
+			Name="nameText"
+			Grid.Column="0"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Top"
+			TextAlignment="Right"
+			Padding="0 0 5 0"
+			Text="{Binding Name, Mode=OneWay, StringFormat=\{0\}:}"
+		/>
+		<StackPanel
+			Name="hexPanel"
+			Grid.Column="1"
+			Orientation="Vertical"
+			HorizontalAlignment="Stretch"
+			Margin="{Binding Margin}"
+			SizeChanged="HexPanel_SizeChanged">
+			<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{Binding RowHeight}">
+				<TextBlock
+					Grid.Column="0"
+					Width="{Binding OffsetColumnWidth}"
+					FontFamily="{Binding HexFontFamily}"
+					FontSize="{Binding FontSize}"
+					VerticalAlignment="Center"
+					Foreground="Gray"
+					Text="Offset"
+				/>
+				<TextBlock
+					Grid.Column="1"
+					Margin="16 0 0 0"
+					FontFamily="{Binding HexFontFamily}"
+					FontSize="{Binding FontSize}"
+					VerticalAlignment="Center"
+					Foreground="Gray"
+					Text="Hex"
+				/>
+				<TextBlock
+					Grid.Column="2"
+					Margin="16 0 0 0"
+					Width="{Binding TextColumnWidth}"
+					FontFamily="{Binding HexFontFamily}"
+					FontSize="{Binding FontSize}"
+					VerticalAlignment="Center"
+					Foreground="Gray"
+					Text="{Binding TextColumnHeader}"
+					IsVisible="{Binding ShowTextColumn}"
+				/>
+			</Grid>
+			<ItemsControl ItemsSource="{Binding Rows}">
+				<ItemsControl.ItemTemplate>
+					<DataTemplate x:DataType="vm:HexEditorRowViewModel">
+						<Grid ColumnDefinitions="Auto,*,Auto" MinHeight="{Binding RowHeight}">
+							<TextBlock
+								Grid.Column="0"
+								Width="{Binding OffsetColumnWidth}"
+								FontFamily="{Binding HexFontFamily}"
+								FontSize="{Binding FontSize}"
+								VerticalAlignment="Center"
+								Text="{Binding OffsetText}"
+							/>
+							<SelectableTextBlock
+								Grid.Column="1"
+								Classes="hexRow"
+								Margin="16 0 0 0"
+								Padding="0"
+								FontFamily="{Binding HexFontFamily}"
+								FontSize="{Binding FontSize}"
+								VerticalAlignment="Center"
+								Text="{Binding HexDisplayText}"
+								IsVisible="{Binding IsReadOnly}"
+							/>
+							<TextBox
+								Grid.Column="1"
+								Classes="hexRow"
+								Margin="16 0 0 0"
+								Padding="0"
+								MinWidth="0"
+								MinHeight="0"
+								MaxHeight="{Binding RowHeight}"
+								FontFamily="{Binding HexFontFamily}"
+								FontSize="{Binding FontSize}"
+								VerticalAlignment="Center"
+								VerticalContentAlignment="Center"
+								Text="{Binding HexDisplayText, Mode=OneWay}"
+								IsVisible="{Binding !IsReadOnly}"
+								BorderThickness="0"
+								Background="Transparent"
+								CaretBrush="{DynamicResource SystemAccentColor}"
+								GotFocus="HexRow_GotFocus"
+								LostFocus="HexRow_LostFocus"
+								TextChanged="HexRow_TextChanged"
+								TextInput="HexRow_TextInput"
+								KeyDown="HexRow_KeyDown"
+								PointerPressed="HexRow_PointerPressed"
+							/>
+							<SelectableTextBlock
+								Grid.Column="2"
+								Margin="16 0 0 0"
+								Padding="0"
+								Width="{Binding TextColumnWidth}"
+								FontFamily="{Binding HexFontFamily}"
+								FontSize="{Binding FontSize}"
+								VerticalAlignment="Center"
+								Text="{Binding TextColumnText}"
+								IsVisible="{Binding ShowTextColumn}"
+							/>
+						</Grid>
+					</DataTemplate>
+				</ItemsControl.ItemTemplate>
+			</ItemsControl>
+		</StackPanel>
+	</Grid>
+</UserControl>

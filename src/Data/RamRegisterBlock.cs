@@ -47,9 +47,9 @@ namespace BlockEditGen.Data
 			else
 				throw new InvalidOperationException($"The type of the object is not valid.");
 
-			_buf = new T[SizeInBytes / _sizeOfReg];
-			CanWrite = !isReadOnly;
 			SizeInBytes = sizeInBytes;
+			CanWrite = !isReadOnly;
+			_buf = new T[sizeInBytes / _sizeOfReg];
 		}
 
 		public async Task ReadAsync(int byteAddress, Memory<T> dst)

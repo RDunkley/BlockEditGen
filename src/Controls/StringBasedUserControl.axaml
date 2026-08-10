@@ -6,14 +6,14 @@
 			 xmlns:conv="using:BlockEditGen.Converters"
 			 mc:Ignorable="d" d:DesignWidth="320" d:DesignHeight="40"
 			 x:Class="BlockEditGen.Controls.StringBasedUserControl"
-			 x:DataType="vm:StringViewModel">
+			 x:DataType="vm:StringBasedViewModelBase">
 	<Design.DataContext>
 		<vm:StringViewModel/>
 	</Design.DataContext>
 	<UserControl.Resources>
 		<conv:DataControlStateToBackgroundColorConverter x:Key="stateConverter" />
 	</UserControl.Resources>
-	<StackPanel Margin="5 0 5 0" Orientation="Horizontal" Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
+	<StackPanel Margin="5 0 5 0" Orientation="Horizontal" MinHeight="{Binding RowMinHeight}" Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
 		<TextBlock
 			Name="nameText"
 			Margin="{Binding Margin}"
@@ -24,14 +24,31 @@
 			Padding="0 0 5 0"
 			Text="{Binding Name, Mode=OneWay, StringFormat=\{0\}:}"
 		/>
+		<SelectableTextBlock
+			Name="valueReadOnlyText"
+			Margin="{Binding Margin}"
+			FontSize="{Binding FontSize}"
+			FontFamily="{Binding FontFamily}"
+			VerticalAlignment="Center"
+			HorizontalAlignment="Left"
+			TextAlignment="Left"
+			MinWidth="60"
+			Padding="6 0"
+			IsVisible="{Binding IsReadOnly, Mode=OneWay}"
+			Text="{Binding ValueString, Mode=OneWay}"
+		/>
 		<TextBox
 			Name="valueTextBox"
 			Margin="{Binding Margin}"
 			FontSize="{Binding FontSize}"
 			FontFamily="{Binding FontFamily}"
 			VerticalAlignment="Center"
-			HorizontalAlignment="Center"
-			IsReadOnly="{Binding IsReadOnly, Mode=OneWay}"
+			VerticalContentAlignment="Center"
+			HorizontalAlignment="Left"
+			MinWidth="60"
+			MinHeight="{Binding RowHeight}"
+			Padding="6 0"
+			IsVisible="{Binding !IsReadOnly, Mode=OneWay}"
 			AcceptsReturn="False"
 			TextWrapping="NoWrap"
 		/>

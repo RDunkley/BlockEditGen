@@ -13,7 +13,7 @@
 	<UserControl.Resources>
 		<conv:DataControlStateToBackgroundColorConverter x:Key="stateConverter" />
 	</UserControl.Resources>
-	<StackPanel Margin="5 0 5 0" Orientation="Horizontal" Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
+	<StackPanel Margin="5 0 5 0" Orientation="Horizontal" MinHeight="{Binding RowMinHeight}" Background="{Binding CurrentState, Converter={StaticResource stateConverter}, Mode=OneWay}" ToolTip.Tip="{Binding Description, Mode=OneWay}">
 		<TextBlock
 			Name="nameText"
 			Margin="{Binding Margin}"
@@ -30,7 +30,10 @@
 			FontSize="{Binding FontSize}"
 			FontFamily="{Binding FontFamily}"
 			VerticalAlignment="Center"
+			VerticalContentAlignment="Center"
 			HorizontalAlignment="Center"
+			MinHeight="{Binding RowHeight}"
+			Padding="8 0"
 			IsEnabled="{Binding !IsReadOnly, Mode=OneWay}"
 			ItemsSource="{Binding Items, Mode=OneWay}"
 			SelectedIndex="{Binding SelectedIndex, Mode=TwoWay}"
