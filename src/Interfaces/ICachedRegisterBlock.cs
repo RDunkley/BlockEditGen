@@ -43,6 +43,11 @@ namespace BlockEditGen.Interfaces
 		bool HasChanges { get; }
 
 		/// <summary>
+		///   Gets the size of the cached block in bytes.
+		/// </summary>
+		int SizeInBytes { get; }
+
+		/// <summary>
 		///   Reads a section of the cache.
 		/// </summary>
 		/// <param name="address">Address to begin reading at.</param>

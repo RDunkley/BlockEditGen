@@ -143,6 +143,10 @@ namespace BlockEditGen
 
 		private static void AddValueControl(StackPanel panel, double nameWidth, Value value, ICachedRegisterBlock block)
 		{
+			var end = value.Address + value.Length;
+			if (end > block.SizeInBytes)
+				throw new InvalidOperationException($"The panel value '{value.Name}' at {value.Address} (length {value.Length}) ends at {end}, which exceeds the register block size ({block.SizeInBytes} bytes). Increase the config block's size, or reduce the panel addresses.");
+
 			UserControl newControl;
 			switch (value.Type)
 			{
